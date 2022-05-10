@@ -1,0 +1,207 @@
+Development notes
+
+
+Block size used when reading files
+==================================
+
+Summary: 256k block size with dd gets about 7.2GB/s.  
+512k starts to get slower.
+Everything less than 256k is slower.
+
+First one probably loaded the cache
+
+[bwh@k-2so Samsung_T5]$ time dd if=big_file_1G of=/dev/null bs=32k
+32768+0 records in
+32768+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 2.31769 s, 463 MB/s
+
+real	0m2.328s
+user	0m0.065s
+sys	0m0.748s
+
+It got better:
+
+[bwh@k-2so Samsung_T5]$ time dd if=big_file_1G of=/dev/null bs=16k
+65536+0 records in
+65536+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.284696 s, 3.8 GB/s
+
+real	0m0.287s
+user	0m0.054s
+sys	0m0.232s
+[bwh@k-2so Samsung_T5]$ time dd if=big_file_1G of=/dev/null bs=16k
+65536+0 records in
+65536+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.241092 s, 4.5 GB/s
+
+real	0m0.243s
+user	0m0.045s
+sys	0m0.197s
+[bwh@k-2so Samsung_T5]$ time dd if=big_file_1G of=/dev/null bs=32k
+32768+0 records in
+32768+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.186779 s, 5.7 GB/s
+
+real	0m0.188s
+user	0m0.023s
+sys	0m0.165s
+[bwh@k-2so Samsung_T5]$ time dd if=big_file_1G of=/dev/null bs=32k
+32768+0 records in
+32768+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.187228 s, 5.7 GB/s
+
+real	0m0.189s
+user	0m0.025s
+sys	0m0.163s
+[bwh@k-2so Samsung_T5]$ time dd if=big_file_1G of=/dev/null bs=64k
+16384+0 records in
+16384+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.163701 s, 6.6 GB/s
+
+real	0m0.165s
+user	0m0.011s
+sys	0m0.153s
+[bwh@k-2so Samsung_T5]$ time dd if=big_file_1G of=/dev/null bs=64k
+16384+0 records in
+16384+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.16347 s, 6.6 GB/s
+
+real	0m0.165s
+user	0m0.014s
+sys	0m0.150s
+[bwh@k-2so Samsung_T5]$ time dd if=big_file_1G of=/dev/null bs=64k
+16384+0 records in
+16384+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.163275 s, 6.6 GB/s
+
+real	0m0.165s
+user	0m0.015s
+sys	0m0.149s
+[bwh@k-2so Samsung_T5]$ time dd if=big_file_1G of=/dev/null bs=128k
+8192+0 records in
+8192+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.153697 s, 7.0 GB/s
+
+real	0m0.156s
+user	0m0.004s
+sys	0m0.150s
+[bwh@k-2so Samsung_T5]$ time dd if=big_file_1G of=/dev/null bs=128k
+8192+0 records in
+8192+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.153674 s, 7.0 GB/s
+
+real	0m0.155s
+user	0m0.007s
+sys	0m0.147s
+[bwh@k-2so Samsung_T5]$ time dd if=big_file_1G of=/dev/null bs=128k
+8192+0 records in
+8192+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.152907 s, 7.0 GB/s
+
+real	0m0.154s
+user	0m0.005s
+sys	0m0.149s
+[bwh@k-2so Samsung_T5]$ time dd if=big_file_1G of=/dev/null bs=128k
+8192+0 records in
+8192+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.153906 s, 7.0 GB/s
+
+real	0m0.156s
+user	0m0.007s
+sys	0m0.148s
+[bwh@k-2so Samsung_T5]$ time dd if=big_file_1G of=/dev/null bs=256k
+4096+0 records in
+4096+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.149772 s, 7.2 GB/s
+
+real	0m0.151s
+user	0m0.002s
+sys	0m0.148s
+[bwh@k-2so Samsung_T5]$ time dd if=big_file_1G of=/dev/null bs=256k
+4096+0 records in
+4096+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.149662 s, 7.2 GB/s
+
+real	0m0.151s
+user	0m0.005s
+sys	0m0.145s
+[bwh@k-2so Samsung_T5]$ time dd if=big_file_1G of=/dev/null bs=256k
+4096+0 records in
+4096+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.149682 s, 7.2 GB/s
+
+real	0m0.151s
+user	0m0.001s
+sys	0m0.149s
+[bwh@k-2so Samsung_T5]$ time dd if=big_file_1G of=/dev/null bs=256k
+4096+0 records in
+4096+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.149505 s, 7.2 GB/s
+
+real	0m0.151s
+user	0m0.007s
+sys	0m0.144s
+[bwh@k-2so Samsung_T5]$ time dd if=big_file_1G of=/dev/null bs=512k
+2048+0 records in
+2048+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.153043 s, 7.0 GB/s
+
+real	0m0.155s
+user	0m0.001s
+sys	0m0.152s
+[bwh@k-2so Samsung_T5]$ time dd if=big_file_1G of=/dev/null bs=256k
+4096+0 records in
+4096+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.150164 s, 7.2 GB/s
+
+real	0m0.152s
+user	0m0.007s
+sys	0m0.144s
+[bwh@k-2so Samsung_T5]$ time dd if=big_file_1G of=/dev/null bs=128k
+8192+0 records in
+8192+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.153756 s, 7.0 GB/s
+
+real	0m0.155s
+user	0m0.008s
+sys	0m0.147s
+[bwh@k-2so Samsung_T5]$ time dd if=big_file_1G of=/dev/null bs=128k
+8192+0 records in
+8192+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.153592 s, 7.0 GB/s
+
+real	0m0.155s
+user	0m0.006s
+sys	0m0.148s
+[bwh@k-2so Samsung_T5]$ time dd if=big_file_1G of=/dev/null bs=128k
+8192+0 records in
+8192+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.153336 s, 7.0 GB/s
+
+real	0m0.155s
+user	0m0.006s
+sys	0m0.148s
+[bwh@k-2so Samsung_T5]$ time dd if=big_file_1G of=/dev/null bs=256k
+4096+0 records in
+4096+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.149294 s, 7.2 GB/s
+
+real	0m0.151s
+user	0m0.005s
+sys	0m0.145s
+[bwh@k-2so Samsung_T5]$ time dd if=big_file_1G of=/dev/null bs=256k
+4096+0 records in
+4096+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.149418 s, 7.2 GB/s
+
+real	0m0.151s
+user	0m0.004s
+sys	0m0.146s
+[bwh@k-2so Samsung_T5]$ time dd if=big_file_1G of=/dev/null bs=256k
+4096+0 records in
+4096+0 records out
+1073741824 bytes (1.1 GB, 1.0 GiB) copied, 0.149195 s, 7.2 GB/s
+
+real	0m0.151s
+user	0m0.004s
+sys	0m0.146s
