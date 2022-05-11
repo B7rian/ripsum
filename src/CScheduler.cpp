@@ -26,29 +26,7 @@
 #include "CScheduler.h"
 #include "CTaskState.h"
 #include "CFileSystem.h"
-
-void ReadChecksumsFromFile(std::filesystem::path aP,
-			   std::function<void(std::filesystem::path, std::string)> aFileCb)
-{
-	std::ifstream sin;
-	std::string line;
-
-	sin.open(aP);
-	while(std::getline(sin, line)) {
-		std::string checksum;
-		char c;
-		std::filesystem::path p;
-		std::stringstream ss(line);
-
-		ss >> checksum;
-		ss.get(c); // Discard space
-		ss.get(c); // Will be * for binary, space for text mode
-		ss >> p;
-
-		aFileCb(p, checksum);
-	}
-}
-
+#include "CUserInput.h"
 
 std::mutex CScheduler::smOutputMtx;
 
@@ -150,7 +128,7 @@ tf::Task CScheduler::MakeTasksToReadAndCheckFiles(tf::Taskflow& aTf,
 		std::function<CTaskState* (std::filesystem::path)> aStateAllocatorCb)
 {
     return aTf.emplace([&, aTarget](tf::Subflow& aSubflow) {
-		ReadChecksumsFromFile(aTarget,
+		CUserInput::ReadChecksumsFromFile(aTarget,
 			[&](std::filesystem::path aP, std::string aChecksum) { 
 				CTaskState *pNewState = aStateAllocatorCb(aP);
 				pNewState->SetExpectedChecksum(aChecksum);
