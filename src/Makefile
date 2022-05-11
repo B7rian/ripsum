@@ -36,24 +36,53 @@ CTaskState.o: CTaskState.cpp CTaskState.h
 CScheduler.o: CScheduler.cpp CScheduler.h
 	$(CPP) $(CPPFLAGS) -c $(INCLUDES) -o CScheduler.o CScheduler.cpp
 
-# Test stuff
+#
+# Test/check stuff
+#
 sha256sum-expected.out:
 	bash -c 'time find taskflow -type f -exec sha256sum {} + | sort -k 2 > sha256sum-expected.out'
-
-ripsum.out: ripsum
-	bash -c 'time ./ripsum taskflow | sort -k 2 > ripsum.out'
 
 sha256sum-check-expected.out: sha256sum-expected.out
 	bash -c 'time sha256sum -c sha256sum-expected.out | sort > sha256sum-check-expected.out'
 
+sha256sum-badline-check.out: ripsum-with-badline.out
+	sha256sum -c ripsum-with-badline.out 2> sha256sum-badline-check.err | sort > sha256sum-badline-check.out 
+
+sha256sum-badline-check.err: sha256sum-badline-check.out
+
+
+ripsum.out: ripsum
+	bash -c 'time ./ripsum taskflow | sort -k 2 > ripsum.out'
+
 ripsum-check.out: ripsum ripsum.out
 	bash -c 'time ./ripsum -c ripsum.out | sort > ripsum-check.out'
+
+ripsum-with-badline.out: ripsum.out
+	cp ripsum.out ripsum-with-badline.out
+	echo bad line bad line bad line bad line >> ripsum-with-badline.out
+
+ripsum-badline-check.out: ripsum-with-badline.out
+	./ripsum -c ripsum-with-badline.out  2> ripsum-badline-check.err | sort > ripsum-badline-check.out
 	
-test: sha256sum-expected.out ripsum.out sha256sum-check-expected.out ripsum-check.out
+ripsum-badline-check.err: ripsum-badline-check.out
+
+check: sha256sum-expected.out ripsum.out sha256sum-check-expected.out ripsum-check.out ripsum-badline-check.out sha256sum-badline-check.out ripsum-badline-check.err sha256sum-badline-check.err
 	diff sha256sum-expected.out ripsum.out
 	diff sha256sum-check-expected.out ripsum-check.out
-
+	#diff sha256sum-badline-check.out ripsum-badline-check.out
+	#diff sha256sum-badline-check.err ripsum-badline-check.err
 
 clean:
-	rm -f sha256sum-expected.out ripsum.out sha256sum-check-expected.out ripsum-check.out ripsum *.o
+	rm -f sha256sum-expected.out \
+		ripsum.out \
+		sha256sum-check-expected.out \
+		ripsum-check.out \
+		ripsum-with-badline.out \
+		sha256sum-badline-check.out \
+		sha256sum-badline-check.err \
+		ripsum-badline-check.out \
+		ripsum-badline-check.err \
+		ripsum \
+		*.o
+
 
