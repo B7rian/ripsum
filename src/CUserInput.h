@@ -19,9 +19,27 @@
 #include <filesystem>
 #include <functional>
 #include <string>
+#include <vector>
 
 class CUserInput {
 public:
 	static void ReadChecksumsFromFile(std::filesystem::path aP,
 		   std::function<void(std::filesystem::path, std::string)> aFileCb);
+
+    void ParseCommandline(int argc, char **argv);
+
+	int mBinaryFlag {0};
+	int mCheckFlag {0};
+	int mTagFlag {0};
+	int mTextFlag {0};
+	int mZeroFlag {0};
+	int mIgnoreMissingFlag {0};
+	int mQuietFlag {0};
+	int mStatusFlag {0};
+	int mStrictFlag {0};
+	int mWarnFlag {0};
+	int mHelpFlag {0};
+	int mVersionFlag {0};
+
+	std::vector<std::filesystem::path> mPaths;
 };
