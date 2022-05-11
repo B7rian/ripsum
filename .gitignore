@@ -1,0 +1,4 @@
+ripsum
+*.o
+*.err
+*.out
