@@ -22,7 +22,7 @@ To generate checksums: `ripsum <dirs...>`
 
 The check previously generated checksums in a file:: `ripsum -c <checksum file>`
 
-checksum files are interchangable with sha256sum
+checksum files are interchangable with sha256sum but don't support all features yet.
 
 ripsum ignores symlinks.
 
