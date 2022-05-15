@@ -49,7 +49,7 @@ bandwidth on your system. You can infer that your I/O bandwidth is saturated if
 ripsum is running a large job and CPU utilization is less than 100% - in this case
 ripsum can't get the data off of the filesystem fast enough to keep the CPU(s) busy.
 
-Actual speedup vs. find+sha256sum depends on your system. On systems with slower cores 
+Actual speedup vs. find+sha256sum depends on your system. For example, on systems with slower cores 
 and/or fast I/O, you might see 4 or more cores heavily utilized and a speedup approaching 
 4.  On systems with faster cores and/or slow I/O you might saturate I/O with just 2 cores
 and get a speedup less than 2. 
