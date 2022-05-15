@@ -38,7 +38,7 @@ it's called libssl-dev.
 `make check` uses sha256sum to generate expected output for ripsum, and 
 you may need to install that as well. 
 
-ripsum uses [taskflow](taskflow.github.io) to run tasks on multiple cores and the needed
+ripsum uses [taskflow](https://taskflow.github.io) to run tasks on multiple cores and the needed
 headers from taskflow are included in the ripsum git repo. 
 
 # Performance
