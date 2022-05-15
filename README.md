@@ -26,6 +26,21 @@ checksum files are interchangable with sha256sum but don't support all features 
 
 ripsum ignores symlinks.
 
+# Build
+
+Ripsum can be built on Linux with a simple `make` and tested with
+`make check`. 
+
+You may need to install the libssl development package for your Linux 
+distro. On void, Ubuntu, and Ubuntu derivitives like Zorin
+it's called libssl-dev. 
+
+`make check` uses sha256sum to generate expected output for ripsum, and 
+you may need to install that as well. 
+
+ripsum uses [taskflow](taskflow.github.io) to run tasks on multiple cores and the needed
+headers from taskflow are included in the ripsum git repo. 
+
 # Performance
 
 ## CPU Utilization
