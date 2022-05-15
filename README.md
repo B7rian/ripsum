@@ -1,5 +1,5 @@
-# ripsum - Better checksums
-ripsum is meant to be a drop-in replacement for
+# ripsum - Parallel/Multicore/Threaded sha256sum
+ripsum is meant to be a fast drop-in replacement for
 ```
 find <dirs...> -type f -exec sha256sum {} +
 ```
