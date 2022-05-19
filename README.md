@@ -42,18 +42,18 @@ headers from taskflow are included in the ripsum git repo.
 # Testing
 
 `make check` will run sha256sum and ripsum and compare the output. 
-The tests is run on the taskflow subdirectory by default but you can
-change it in the Makefile to use your own dataset. For example,
+The tests are run on the taskflow subdirectory by default but you can
+change the Makefile to use your own dataset. For example,
 before release I run the tests on about 167000 files on 
 a 1TB external drive and make sure the results match. 
 
 # Performance
 
 ## CPU Utilization
-ripsum utilize as much of your CPU(s) as it can and will likely saturate the I/ O 
+ripsum utilize as much of your CPU as it can and will likely saturate the I/ O 
 bandwidth on your system. You can infer that your I/O bandwidth is saturated if 
 ripsum is running a large job and CPU utilization is less than 100% - in this case
-ripsum can't get the data off of the filesystem fast enough to keep the CPU(s) busy.
+ripsum can't get the data off of the filesystem fast enough to keep the CPU busy.
 
 Actual speedup vs. find+sha256sum depends on your system. For example, on systems with slower cores 
 and/or fast I/O, you might see 4 or more cores heavily utilized and a speedup approaching 
