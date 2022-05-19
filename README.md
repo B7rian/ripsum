@@ -9,13 +9,12 @@ find <dirs...> -type f -exec sha256sum {} +
 sha256sum -c <checksum file>
 ```
 
-The name and features are inspired by ripgrep, my initial reaction to ripgrep being 
-something like
-- "Wow, that was a lot faster than I expected!"
-- "Hey the output is much more readable than what I'm used to"
-
-and after some time it was just really nice not to have to type so much.  I hope ripsum
-is as pleasent to use as ripgrep someday.
+The name and features are inspired by 
+[ripgrep](https://github.com/BurntSushi/ripgrep)
+which has, overall, a much better user experience
+than the find-grep commandlines it replaces (nothing
+against find or grep of course). I hope ripsum
+is as pleasent to use as ripgrep someday. 
 
 # Usage
 To generate checksums: `ripsum <dirs...>`
@@ -41,7 +40,7 @@ headers from taskflow are included in the ripsum git repo.
 
 # Testing
 
-`make check` will run sha256sum and ripsum and compare the output. 
+`make check` will run both sha256sum and ripsum and compare the output. 
 The tests are run on the taskflow subdirectory by default but you can
 change the Makefile to use your own dataset. For example,
 before release I run the tests on about 167000 files on 
