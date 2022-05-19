@@ -22,7 +22,8 @@ To generate checksums: `ripsum <dirs...>`
 
 The check previously generated checksums in a file:: `ripsum -c <checksum file>`
 
-checksum files are interchangable with sha256sum but don't support all features yet.
+checksum files are interchangable with sha256sum but don't support all features yet. In 
+particular, the mode character is ignored and everything is done in binary mode. 
 
 ripsum ignores symlinks.
 
@@ -35,11 +36,16 @@ You may need to install the libssl development package for your Linux
 distro. On void, Ubuntu, and Ubuntu derivitives like Zorin
 it's called libssl-dev. 
 
-`make check` uses sha256sum to generate expected output for ripsum, and 
-you may need to install that as well. 
-
 ripsum uses [taskflow](https://taskflow.github.io) to run tasks on multiple cores and the needed
 headers from taskflow are included in the ripsum git repo. 
+
+# Testing
+
+`make check` will run sha256sum and ripsum and compare the output. 
+The tests is run on the taskflow subdirectory by default but you can
+change it in the Makefile to use your own dataset. For example,
+before release I run the tests on about 167000 files on 
+a 1TB external drive and make sure the results match. 
 
 # Performance
 
