@@ -29,6 +29,7 @@
 #include "CUserInput.h"
 
 std::mutex CScheduler::smOutputMtx;
+std::mutex CScheduler::smStateMtx;
 
 void CScheduler::AddPath(std::filesystem::path aP) {
 	mvPaths.push_back(aP);
@@ -40,6 +41,7 @@ void CScheduler::Run(bool aCheckNotCompute) {
 			MakeTasksToReadAndCheckFiles(mTaskflow, target,
 				[&](std::filesystem::path aP) -> CTaskState* { 
 					CTaskState *pNewState = new CTaskState(aP);
+					std::lock_guard<std::mutex> lock(smStateMtx);
 					mvpStatePointers.push_back(pNewState);
 					return pNewState;
 				});
@@ -50,6 +52,7 @@ void CScheduler::Run(bool aCheckNotCompute) {
 			MakeTasksToFindAndHashFiles(mTaskflow, target,
 				[&](std::filesystem::path aP) -> CTaskState* { 
 					CTaskState *pNewState = new CTaskState(aP);
+					std::lock_guard<std::mutex> lock(smStateMtx);
 					mvpStatePointers.push_back(pNewState);
 					return pNewState;
 				});

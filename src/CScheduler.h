@@ -30,6 +30,7 @@ public:
 
 private:
 	static std::mutex smOutputMtx;
+	static std::mutex smStateMtx;
 
 	tf::Executor mExecutor;
 	tf::Taskflow mTaskflow;
