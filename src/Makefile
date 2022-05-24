@@ -18,8 +18,8 @@ CPP=g++
 CPPFLAGS=-Ofast --std=c++17 
 INCLUDES=-I taskflow
 
-ripsum: CTaskState.o CFile.o CHash.o CFileSystem.o CScheduler.o CUserInput.o ripsum.cpp
-	$(CPP) $(CPPFLAGS) -o ripsum $(INCLUDES) ripsum.cpp CTaskState.o CFile.o CHash.o CFileSystem.o CScheduler.o CUserInput.o -lcrypto -lpthread
+ripsum: CTaskState.o CFile.o CHash.o CFileSystem.o CScheduler.o CUserInput.o CChecksumLine.o ripsum.cpp
+	$(CPP) $(CPPFLAGS) -o ripsum $(INCLUDES) ripsum.cpp CTaskState.o CFile.o CHash.o CFileSystem.o CScheduler.o CUserInput.o CChecksumLine.o -lcrypto -lpthread
 
 CFile.o: CFile.cpp CFile.h
 	$(CPP) $(CPPFLAGS) -c -o CFile.o CFile.cpp
@@ -37,7 +37,10 @@ CScheduler.o: CScheduler.cpp CScheduler.h
 	$(CPP) $(CPPFLAGS) -c $(INCLUDES) -o CScheduler.o CScheduler.cpp
 
 CUserInput.o: CUserInput.cpp CUserInput.h
-	$(CPP) $(CPPFLAGS) -c $(INCLUDES) -o CUserInput.o CUserInput.cpp
+	$(CPP) $(CPPFLAGS) -c -o CUserInput.o CUserInput.cpp
+
+CChecksumLine.o: CChecksumLine.cpp CChecksumLine.h
+	$(CPP) $(CPPFLAGS) -c -o CChecksumLine.o CChecksumLine.cpp
 
 #
 # Test/check stuff

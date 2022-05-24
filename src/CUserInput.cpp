@@ -20,8 +20,11 @@
 #include <fstream>
 #include <sstream>
 #include <getopt.h>
+#include <regex>
 
 #include "CUserInput.h"
+#include "CChecksumLine.h"
+
 
 void CUserInput::ReadChecksumsFromFile(std::filesystem::path aP,
 			   std::function<void(std::filesystem::path, std::string)> aFileCb)
@@ -31,24 +34,19 @@ void CUserInput::ReadChecksumsFromFile(std::filesystem::path aP,
 
 	sin.open(aP);
 	while(std::getline(sin, line)) {
-		std::string checksum;
-		char c;
-		std::filesystem::path p;
-		std::stringstream ss(line);
-
-		ss >> checksum;
-		ss.get(c); // Discard space
-		ss.get(c); // Will be * for binary, space for text mode
-		ss >> p;
-
-		aFileCb(p, checksum);
+		CChecksumLine parser(line);
+		aFileCb(parser.GetPath(), parser.GetChecksum());
 	}
 }
 
+
+// This code is heavily based on the example given in the documentation
+// for GNU getopt
 void CUserInput::ParseCommandline(int argc, char **argv) {
 	int option_index = 0;
 	int c;
 
+	// Options stolen from sha256sum and md5sum man pages
 	static struct option long_options[] = {
 		{"binary", no_argument, &mBinaryFlag, 1},
 		{"check", no_argument, &mCheckFlag, 1},
