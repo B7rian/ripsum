@@ -41,6 +41,8 @@ public:
 	static void ReadChecksumsFromFile(std::filesystem::path aP,
 		   std::function<void(std::filesystem::path, std::string)> aFileCb);
 
+	static void Done(void);
+
 	// Parses the command line (pass in argc and argv) and stores the found
 	// options and stuff in member variables
     void ParseCommandline(int argc, char **argv);
@@ -63,5 +65,9 @@ public:
 	// A list of (supposed) paths from the command line.  Not valid until 
 	// after ParseCommandLine is called correctly
 	std::vector<std::filesystem::path> mPaths;
+
+private:
+	static int smBadLines;
+
 };
 

@@ -60,6 +60,7 @@ void CScheduler::Run(bool aCheckNotCompute) {
 	}
 
 	mExecutor.run(mTaskflow).wait(); 
+	CUserInput::Done();
 }
 
 CScheduler::~CScheduler(void) {

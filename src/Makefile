@@ -75,8 +75,8 @@ ripsum-badline-check.err: ripsum-badline-check.out
 check: sha256sum-expected.out ripsum.out sha256sum-check-expected.out ripsum-check.out ripsum-badline-check.out sha256sum-badline-check.out ripsum-badline-check.err sha256sum-badline-check.err
 	diff sha256sum-expected.out ripsum.out
 	diff sha256sum-check-expected.out ripsum-check.out
-	#diff sha256sum-badline-check.out ripsum-badline-check.out
-	#diff sha256sum-badline-check.err ripsum-badline-check.err
+	diff sha256sum-badline-check.out ripsum-badline-check.out
+	diff sha256sum-badline-check.err ripsum-badline-check.err
 
 clean:
 	rm -f sha256sum-expected.out \

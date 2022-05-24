@@ -25,6 +25,7 @@
 #include "CUserInput.h"
 #include "CChecksumLine.h"
 
+int CUserInput::smBadLines = 0;
 
 void CUserInput::ReadChecksumsFromFile(std::filesystem::path aP,
 			   std::function<void(std::filesystem::path, std::string)> aFileCb)
@@ -33,9 +34,24 @@ void CUserInput::ReadChecksumsFromFile(std::filesystem::path aP,
 	std::string line;
 
 	sin.open(aP);
+	smBadLines = 0; 
+
 	while(std::getline(sin, line)) {
 		CChecksumLine parser(line);
-		aFileCb(parser.GetPath(), parser.GetChecksum());
+		if(parser.IsOk()) {
+			aFileCb(parser.GetPath(), parser.GetChecksum());
+		}
+		else {
+			smBadLines++;
+		}
+	}
+}
+
+void CUserInput::Done(void) {
+	if(smBadLines > 0) {
+		std::cerr << "sha256sum: WARNING: " << smBadLines;
+		std::cerr << ((smBadLines == 1) ? " line is" : " lines are");
+		std::cerr << " improperly formatted" << std::endl;
 	}
 }
 
