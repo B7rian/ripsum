@@ -30,11 +30,21 @@
 
 std::mutex CScheduler::smOutputMtx;
 std::mutex CScheduler::smStateMtx;
+static int sgBadSums = 0;
 
+//
+// AddPath: Save the given path for later.  Depending on which options
+// are given on the commandline, Run will decide what to do with them
+//
 void CScheduler::AddPath(std::filesystem::path aP) {
 	mvPaths.push_back(aP);
 }
 
+
+// 
+// Run: Set up taskflow tasks to perform the operations requested by 
+// the user - either check or compute checksums
+//
 void CScheduler::Run(bool aCheckNotCompute) { 
 	if(aCheckNotCompute) {
 		for(auto& target: mvPaths) {
@@ -60,15 +70,33 @@ void CScheduler::Run(bool aCheckNotCompute) {
 	}
 
 	mExecutor.run(mTaskflow).wait(); 
+
+	// This should be in a UserOutput class or something
+	if(sgBadSums) {
+		std::cerr << "sha256sum: WARNING: " << sgBadSums << " computed ";
+		std::cerr << ((sgBadSums == 1) ? "checksum" : "checksums");
+		std::cerr << " did NOT match" << std::endl;
+	}
+
 	CUserInput::Done();
 }
 
+
+// 
+// Destructor: Clean up state pointers when done
+//
 CScheduler::~CScheduler(void) {
 	for(auto s: mvpStatePointers) {
-		delete s;
+		if(s) delete s;
 	}
 }
 
+
+//
+// MakeTasksToHashFile: Like it's named.  Note that taskflow requires
+// a dummy state (called loopBack below) to avoid hanging.  This is in
+// the taskflow docs somewhere.
+//
 void CScheduler::MakeTasksToHashFile(tf::Subflow& aSubflow, 
 		                             CTaskState *apState,
 			                         std::function<void(CTaskState*)> aDoneCb)
@@ -127,6 +155,7 @@ tf::Task CScheduler::MakeTasksToFindAndHashFiles(tf::Taskflow& aTf,
 	});
 }
 
+
 tf::Task CScheduler::MakeTasksToReadAndCheckFiles(tf::Taskflow& aTf, 
 		std::filesystem::path aTarget,
 		std::function<CTaskState* (std::filesystem::path)> aStateAllocatorCb)
@@ -143,7 +172,8 @@ tf::Task CScheduler::MakeTasksToReadAndCheckFiles(tf::Taskflow& aTf,
 						if(apState->ChecksumIsOk()) {
 						    std::cout << ": OK";
 						} else {
-						    std::cout << ": ERROR";
+						    std::cout << ": FAILED";
+							sgBadSums++;
 						}
 						std::cout << std::endl;
 					});
