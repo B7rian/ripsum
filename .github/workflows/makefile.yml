@@ -14,8 +14,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
       
-    - name: Install dependencies
-      run: make -C src
+    - name: Build binary
+      run: make
       
     - name: Run check
-      run: make -C src check
+      run: make check
