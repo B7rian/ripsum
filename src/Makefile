@@ -42,9 +42,6 @@ CUserInput.o: CUserInput.cpp CUserInput.h
 CChecksumLine.o: CChecksumLine.cpp CChecksumLine.h
 	$(CPP) $(CPPFLAGS) -c -o CChecksumLine.o CChecksumLine.cpp
 
-check: ripsum
-	./run_tests.sh
-
 clean:
 	rm -f ripsum *.o
 

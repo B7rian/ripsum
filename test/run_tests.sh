@@ -3,8 +3,8 @@
 set -e
 
 TMPDIR=`mktemp -d`
-RIPSUM=$PWD/ripsum
-SRC=$PWD
+RIPSUM=$PWD/../src/ripsum
+SRC=$PWD/../src
 
 #
 # generate_and_compare: Generate checksums using both find+sha256sum and 
