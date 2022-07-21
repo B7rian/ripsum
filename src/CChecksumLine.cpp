@@ -22,9 +22,22 @@
 
 #include <iostream>
 
+
+//
+// CCheckSumLine
+//
+// This class was added to hold all the parsing logic for the checksum
+// file.  
+//
+// Implementation Discussion: The allowed characters in a filename are
+// dependent on the filesystem.  The current implementation below is 
+// very relaxed so it'll accept paths on multiple filesystem types
+// and may allow more filenames than sha256sum does
+//
+
 CChecksumLine::CChecksumLine(std::string aLine)
 {
-	std::regex r("\\s*([0-9a-f]{64}) [ *](\\S+)\\s*");
+	std::regex r("\\s*([0-9a-f]{64}) [ *](.*\\S)\\s*");
 	std::smatch captures;
 
 	if(!std::regex_match(aLine, captures, r)) {

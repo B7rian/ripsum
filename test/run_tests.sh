@@ -4,16 +4,17 @@ set -e
 
 TMPDIR=`mktemp -d`
 RIPSUM=$PWD/../src/ripsum
-SRC=$PWD/../src
+TEST_DATA=$PWD/../src
+#TEST_DATA=/run/media/bwh/Samsung_T5/White
 
 #
 # generate_and_compare: Generate checksums using both find+sha256sum and 
 # ripsum and compare the output (stderr, stdout, and return value)
 #
 function generate_and_compare() {
-	time find $1 -type f -exec sha256sum $2 {} + 2> ref_gen.err | sort -k 2 > ref_gen.out
+	time find "$1" -type f -exec sha256sum $2 {} + 2> ref_gen.err | sort -k 2 > ref_gen.out
 	RET1=$?
-	time $RIPSUM $1 $2 2> ripsum_gen.err | sort -k 2 > ripsum_gen.out
+	time $RIPSUM "$1" $2 2> ripsum_gen.err | sort -k 2 > ripsum_gen.out
 	RET2=$?
 
 	diff ref_gen.out ripsum_gen.out
@@ -45,8 +46,8 @@ function check_and_compare() {
 set -v -x 
 cd $TMPDIR
 
-# Generate checksums on $SRC and compare the outputs
-generate_and_compare "$SRC" ""
+# Generate checksums on $TEST_DATA and compare the outputs
+generate_and_compare "$TEST_DATA" ""
 
 # Check the checksums just generated and compare the outputs
 cp ref_gen.out checksums.txt
@@ -79,6 +80,13 @@ check_and_compare "-c tooshort.txt"
 # Spaces at the beginning of the line
 sed '9s/^/     /' < checksums.txt > spaces.txt
 check_and_compare "-c spaces.txt"
+
+# Make a folder and file with spaces in the name and try it
+mkdir -p 'Test Dir/Test Dir 2'
+echo Test file > 'Test Dir/Test Dir 2/Test File.txt'
+ls 'Test Dir'
+generate_and_compare 'Test Dir' ''
+check_and_compare '-c ref_gen.out'
 
 cd -
 rm -rf $TMPDIR 	# If TMPDIR is not set for some reason, this won't do anything
