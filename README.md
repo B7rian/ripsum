@@ -42,7 +42,7 @@ headers from taskflow are included in the ripsum git repo.
 
 `make check` will run both sha256sum and ripsum and compare the output. 
 The tests are run on the taskflow subdirectory by default but you can
-change the Makefile to use your own dataset. For example,
+change run_tests.sh script to use your own dataset. For example,
 before release I run the tests on about 167000 files on 
 a 1TB external drive and make sure the results match. 
 
@@ -67,19 +67,6 @@ I did some experiments to find the optimal file read block size on my system and
 the results are in the NOTES files. 256k seemed to work best but uses a lot of RAM on
 large jobs. I would like to make this command-line controllable and maybe even dynamic 
 in the future.
-
-# Known issues / To do
-- Uses too much memory
-- Not all sha256sum and md5sum and other *sum command line options fully implemented
-- Only sha256 is supported
-- Return codes not implemented
-- Error handling not implemented
-	- May not handle missing files when -c is used
-- Performance: Big files scheduled late extend the total runtime unnecessarily
-- Performance: Initial directory traversal to build file list runs in single core and can peg that core for a few seconds unnecessarily
-- Probably Linux only.  I haven't tried anything else.
-- OpenSSL 1.1 API
-- Read block size optimized form my development system
 
 
 
