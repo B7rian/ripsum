@@ -27,10 +27,12 @@
 #include "CTaskState.h"
 #include "CFileSystem.h"
 #include "CUserInput.h"
+#include "CStatePool.h"
 
 std::mutex CScheduler::smOutputMtx;
-std::mutex CScheduler::smStateMtx;
 static int sgBadSums = 0;
+static CStatePool statePool;
+
 
 //
 // AddPath: Save the given path for later.  Depending on which options
@@ -48,24 +50,12 @@ void CScheduler::AddPath(std::filesystem::path aP) {
 void CScheduler::Run(bool aCheckNotCompute) { 
 	if(aCheckNotCompute) {
 		for(auto& target: mvPaths) {
-			MakeTasksToReadAndCheckFiles(mTaskflow, target,
-				[&](std::filesystem::path aP) -> CTaskState* { 
-					CTaskState *pNewState = new CTaskState(aP);
-					std::lock_guard<std::mutex> lock(smStateMtx);
-					mvpStatePointers.push_back(pNewState);
-					return pNewState;
-				});
+			MakeTasksToReadAndCheckFiles(mTaskflow, target);
 		}
 	}
 	else {
 		for(auto& target: mvPaths) {
-			MakeTasksToFindAndHashFiles(mTaskflow, target,
-				[&](std::filesystem::path aP) -> CTaskState* { 
-					CTaskState *pNewState = new CTaskState(aP);
-					std::lock_guard<std::mutex> lock(smStateMtx);
-					mvpStatePointers.push_back(pNewState);
-					return pNewState;
-				});
+			MakeTasksToFindAndHashFiles(mTaskflow, target);
 		}
 	}
 
@@ -86,9 +76,7 @@ void CScheduler::Run(bool aCheckNotCompute) {
 // Destructor: Clean up state pointers when done
 //
 CScheduler::~CScheduler(void) {
-	for(auto s: mvpStatePointers) {
-		if(s) delete s;
-	}
+	statePool.DeleteStates();
 }
 
 
@@ -137,13 +125,12 @@ void CScheduler::MakeTasksToHashFile(tf::Subflow& aSubflow,
 }
 
 tf::Task CScheduler::MakeTasksToFindAndHashFiles(tf::Taskflow& aTf, 
-		std::filesystem::path aTarget,
-		std::function<CTaskState* (std::filesystem::path)> aStateAllocatorCb)
+		std::filesystem::path aTarget)
 {
     return aTf.emplace([&, aTarget](tf::Subflow& aSubflow) {
 		CFileSystem::FindFiles(aTarget,
 			[&](std::filesystem::path aP) { 
-				CTaskState *pNewState = aStateAllocatorCb(aP);
+				CTaskState *pNewState = statePool.GetNewState(aP);
 				MakeTasksToHashFile(aSubflow, pNewState,
 					[&](CTaskState *apState) {
 						std::lock_guard<std::mutex> lock(smOutputMtx);
@@ -157,13 +144,12 @@ tf::Task CScheduler::MakeTasksToFindAndHashFiles(tf::Taskflow& aTf,
 
 
 tf::Task CScheduler::MakeTasksToReadAndCheckFiles(tf::Taskflow& aTf, 
-		std::filesystem::path aTarget,
-		std::function<CTaskState* (std::filesystem::path)> aStateAllocatorCb)
+		std::filesystem::path aTarget)
 {
     return aTf.emplace([&, aTarget](tf::Subflow& aSubflow) {
 		CUserInput::ReadChecksumsFromFile(aTarget,
 			[&](std::filesystem::path aP, std::string aChecksum) { 
-				CTaskState *pNewState = aStateAllocatorCb(aP);
+				CTaskState *pNewState = statePool.GetNewState(aP);
 				pNewState->SetExpectedChecksum(aChecksum);
 				MakeTasksToHashFile(aSubflow, pNewState,
 					[&](CTaskState *apState) {

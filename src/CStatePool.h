@@ -18,30 +18,21 @@
 
 #include <filesystem>
 #include <vector>
-#include "taskflow/taskflow.hpp"
+#include <mutex>
 
 #include "CTaskState.h"
 
-class CScheduler {
+//
+// CStatePool was created to get the details of TaskState allocation out
+// of the CScheduler class.
+// 
+
+class CStatePool {
 public:
-	void AddPath(std::filesystem::path aP);
-	void Run(bool aCheckNotCompute);
-	~CScheduler(void);
+	CTaskState *GetNewState(std::filesystem::path aP);
+	void DeleteStates(void);
 
 private:
-	static std::mutex smOutputMtx;
-
-	tf::Executor mExecutor;
-	tf::Taskflow mTaskflow;
-
-	std::vector<std::filesystem::path> mvPaths;
-
-	void MakeTasksToHashFile(tf::Subflow& aSubflow, CTaskState *apState,
-							 std::function<void(CTaskState*)> aDoneCb);
-	tf::Task MakeTasksToFindAndHashFiles(tf::Taskflow& aTf, 
-		std::filesystem::path aTarget);
-	tf::Task MakeTasksToReadAndCheckFiles(tf::Taskflow& aTf, 
-		std::filesystem::path aTarget);
-
+	std::mutex smStateMtx;
+	std::vector<CTaskState*> mvpStatePointers;
 };
-

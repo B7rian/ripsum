@@ -14,34 +14,33 @@
 // limitations under the License.
 //
 
-#pragma once
-
 #include <filesystem>
 #include <vector>
-#include "taskflow/taskflow.hpp"
+#include <mutex>
 
 #include "CTaskState.h"
+#include "CStatePool.h"
 
-class CScheduler {
-public:
-	void AddPath(std::filesystem::path aP);
-	void Run(bool aCheckNotCompute);
-	~CScheduler(void);
 
-private:
-	static std::mutex smOutputMtx;
+//
+// GetNewState: Return a new state.  Right now it is actually a new state
+// but it doesn't have to stay that way
+//
+CTaskState *CStatePool::GetNewState(std::filesystem::path aP) {
+	CTaskState *pNewState = new CTaskState(aP);
+	std::lock_guard<std::mutex> lock(smStateMtx);
+	mvpStatePointers.push_back(pNewState);
+	return pNewState;
+}
 
-	tf::Executor mExecutor;
-	tf::Taskflow mTaskflow;
 
-	std::vector<std::filesystem::path> mvPaths;
-
-	void MakeTasksToHashFile(tf::Subflow& aSubflow, CTaskState *apState,
-							 std::function<void(CTaskState*)> aDoneCb);
-	tf::Task MakeTasksToFindAndHashFiles(tf::Taskflow& aTf, 
-		std::filesystem::path aTarget);
-	tf::Task MakeTasksToReadAndCheckFiles(tf::Taskflow& aTf, 
-		std::filesystem::path aTarget);
-
-};
+//
+// DeleteStates: Delete all the states.  To be called when they aren't needed
+// anymore.
+//
+void CStatePool::DeleteStates(void) {
+	for(auto s: mvpStatePointers) {
+		if(s) delete s;
+	}
+}
 
