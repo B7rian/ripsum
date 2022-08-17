@@ -82,14 +82,14 @@ CScheduler::~CScheduler(void) {
 
 //
 // MakeTasksToHashFile: Like it's named.  Note that taskflow requires
-// a dummy state (called loopBack below) to avoid hanging.  This is in
+// a dummy task (called loopBack below) to avoid hanging.  This is in
 // the taskflow docs somewhere.
 //
 void CScheduler::MakeTasksToHashFile(tf::Subflow& aSubflow, 
 		                             CTaskState *apState,
 			                         std::function<void(CTaskState*)> aDoneCb)
 {
-	tf::Task a = aSubflow.emplace([=]() mutable { 
+	tf::Task a = aSubflow.emplace([=]() { 
 		apState->Init(); 
 	}).name("init");
 
@@ -124,6 +124,13 @@ void CScheduler::MakeTasksToHashFile(tf::Subflow& aSubflow,
 	d2.precede(b);
 }
 
+
+// 
+// MakeTasksToFindAndHashFiles: Create a task in a subflow to run
+// CFileSystem::FindFiles and, for each file found, run 
+// MakeTasksToHashFile on it (which makes more tasks in another
+// subflow)
+//
 tf::Task CScheduler::MakeTasksToFindAndHashFiles(tf::Taskflow& aTf, 
 		std::filesystem::path aTarget)
 {
@@ -143,6 +150,12 @@ tf::Task CScheduler::MakeTasksToFindAndHashFiles(tf::Taskflow& aTf,
 }
 
 
+// 
+// MakeTasksToFindAndHashFiles: Create a task in a subflow to 
+// read checksums from a file and, for each file found, run 
+// MakeTasksToHashFile on it (which makes more tasks in another
+// subflow)
+//
 tf::Task CScheduler::MakeTasksToReadAndCheckFiles(tf::Taskflow& aTf, 
 		std::filesystem::path aTarget)
 {
