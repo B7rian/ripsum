@@ -27,7 +27,6 @@
 #include "CTaskState.h"
 #include "CFileSystem.h"
 #include "CUserInput.h"
-#include "CStatePool.h"
 
 std::mutex CScheduler::smOutputMtx;
 static int sgBadSums = 0;
