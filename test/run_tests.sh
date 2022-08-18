@@ -6,6 +6,7 @@ TMPDIR=`mktemp -d`
 RIPSUM=$PWD/../src/ripsum
 TEST_DATA=$PWD/../src
 #TEST_DATA=/run/media/bwh/Samsung_T5/White
+#TEST_DATA=/media/bwh/0913363e-4c27-4171-ab30-45bb5301d496/home/bwh/Pictures
 
 #
 # generate_and_compare: Generate checksums using both find+sha256sum and 

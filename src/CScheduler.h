@@ -36,7 +36,8 @@ private:
 
 	std::vector<std::filesystem::path> mvPaths;
 
-	void MakeTasksToHashFile(tf::Subflow& aSubflow, CTaskState *apState,
+	void MakeTasksToHashFile(tf::Subflow& aSubflow, 
+							 std::filesystem::path aP,
 							 std::function<void(CTaskState*)> aDoneCb);
 	tf::Task MakeTasksToFindAndHashFiles(tf::Taskflow& aTf, 
 		std::filesystem::path aTarget);

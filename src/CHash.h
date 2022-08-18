@@ -25,7 +25,7 @@ class CHash {
 		void AddBytesToHash2(uint8_t *aBytes, uint32_t aCount);
 		void FinishHash(void);
 		std::string GetChecksum(void) { return mChecksum; }
-		void SetExpectedChecksum(std::string& aChecksum) {
+		void SetExpectedChecksum(const std::string& aChecksum) {
 			mExpectedChecksum = aChecksum;
 		}
 		bool ChecksumIsOk(void) { return mChecksum == mExpectedChecksum; }

@@ -31,7 +31,6 @@
 
 std::mutex CScheduler::smOutputMtx;
 static int sgBadSums = 0;
-static CStatePool statePool;
 
 
 //
@@ -76,7 +75,6 @@ void CScheduler::Run(bool aCheckNotCompute) {
 // Destructor: Clean up state pointers when done
 //
 CScheduler::~CScheduler(void) {
-	statePool.DeleteStates();
 }
 
 
@@ -86,26 +84,28 @@ CScheduler::~CScheduler(void) {
 // the taskflow docs somewhere.
 //
 void CScheduler::MakeTasksToHashFile(tf::Subflow& aSubflow, 
-		                             CTaskState *apState,
+		                             std::filesystem::path aP,
 			                         std::function<void(CTaskState*)> aDoneCb)
 {
+	CTaskState *pState = new CTaskState(aP);
+
 	tf::Task a = aSubflow.emplace([=]() { 
-		apState->Init(); 
+		pState->Init(); 
 	}).name("init");
 
 	tf::Task b = aSubflow.emplace([=]() { 
-		apState->ReadBytes(); 
+		pState->ReadBytes(); 
 	}).name("read");
 
 	tf::Task c = aSubflow.emplace([=]() {
-		if(apState->GetBufCount() == 0) {
+		if(pState->GetBufCount() == 0) {
 			return 1;
 		}
 		return 0;
 	}).name("check");
 
 	tf::Task d = aSubflow.emplace([=]() { 
-		apState->AddBytesToHash(); 
+		pState->AddBytesToHash(); 
 	}).name("hash");
 
 	tf::Task d2 = aSubflow.emplace([=]() { 
@@ -113,8 +113,9 @@ void CScheduler::MakeTasksToHashFile(tf::Subflow& aSubflow,
 	}).name("loopBack");
 
 	tf::Task e = aSubflow.emplace([=]() {
-		apState->Finish();
-		aDoneCb(apState);
+		pState->Finish();
+		aDoneCb(pState);
+		delete pState;
 	}).name("finish");
 
 	a.precede(b);
@@ -137,8 +138,7 @@ tf::Task CScheduler::MakeTasksToFindAndHashFiles(tf::Taskflow& aTf,
     return aTf.emplace([&, aTarget](tf::Subflow& aSubflow) {
 		CFileSystem::FindFiles(aTarget,
 			[&](std::filesystem::path aP) { 
-				CTaskState *pNewState = statePool.GetNewState(aP);
-				MakeTasksToHashFile(aSubflow, pNewState,
+				MakeTasksToHashFile(aSubflow, aP,
 					[&](CTaskState *apState) {
 						std::lock_guard<std::mutex> lock(smOutputMtx);
 						std::cout << apState->GetChecksum() << "  " 
@@ -162,10 +162,9 @@ tf::Task CScheduler::MakeTasksToReadAndCheckFiles(tf::Taskflow& aTf,
     return aTf.emplace([&, aTarget](tf::Subflow& aSubflow) {
 		CUserInput::ReadChecksumsFromFile(aTarget,
 			[&](std::filesystem::path aP, std::string aChecksum) { 
-				CTaskState *pNewState = statePool.GetNewState(aP);
-				pNewState->SetExpectedChecksum(aChecksum);
-				MakeTasksToHashFile(aSubflow, pNewState,
-					[&](CTaskState *apState) {
+				MakeTasksToHashFile(aSubflow, aP,
+					[&, aChecksum](CTaskState *apState) {
+						apState->SetExpectedChecksum(aChecksum);
 						std::lock_guard<std::mutex> lock(smOutputMtx);
 						std::cout << apState->GetPath().native();
 						if(apState->ChecksumIsOk()) {
