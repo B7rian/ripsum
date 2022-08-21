@@ -25,12 +25,11 @@
 class CScheduler {
 public:
 	void AddPath(std::filesystem::path aP);
-	void Run(bool aCheckNotCompute);
-	~CScheduler(void);
+	void Run(bool aCheckNotCompute,
+		     std::function<void(CTaskState*)> aDoneCb);
+	~CScheduler(void) {}
 
 private:
-	static std::mutex smOutputMtx;
-
 	tf::Executor mExecutor;
 	tf::Taskflow mTaskflow;
 
@@ -40,9 +39,11 @@ private:
 							 std::filesystem::path aP,
 							 std::function<void(CTaskState*)> aDoneCb);
 	tf::Task MakeTasksToFindAndHashFiles(tf::Taskflow& aTf, 
-		std::filesystem::path aTarget);
+		 std::filesystem::path aTarget,
+		 std::function<void(CTaskState*)> aDoneCb);
 	tf::Task MakeTasksToReadAndCheckFiles(tf::Taskflow& aTf, 
-		std::filesystem::path aTarget);
+		 std::filesystem::path aTarget,
+		 std::function<void(CTaskState*)> aDoneCb);
 
 };
 

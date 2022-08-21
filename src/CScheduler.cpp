@@ -28,9 +28,6 @@
 #include "CFileSystem.h"
 #include "CUserInput.h"
 
-std::mutex CScheduler::smOutputMtx;
-static int sgBadSums = 0;
-
 
 //
 // AddPath: Save the given path for later.  Depending on which options
@@ -45,35 +42,35 @@ void CScheduler::AddPath(std::filesystem::path aP) {
 // Run: Set up taskflow tasks to perform the operations requested by 
 // the user - either check or compute checksums
 //
-void CScheduler::Run(bool aCheckNotCompute) { 
+void CScheduler::Run(bool aCheckNotCompute,
+	                 std::function<void(CTaskState*)> aDoneCb)
+{
 	if(aCheckNotCompute) {
 		for(auto& target: mvPaths) {
-			MakeTasksToReadAndCheckFiles(mTaskflow, target);
+			mTaskflow.emplace([&, target](tf::Subflow& aSubflow) {
+				CUserInput::ReadChecksumsFromFile(target,
+					[&](std::filesystem::path aP, std::string aChecksum) { 
+						MakeTasksToHashFile(aSubflow, aP, 
+							[&, aChecksum](CTaskState *apState) {
+								apState->SetExpectedChecksum(aChecksum);
+								aDoneCb(apState);
+						});
+					});
+			});
 		}
 	}
 	else {
 		for(auto& target: mvPaths) {
-			MakeTasksToFindAndHashFiles(mTaskflow, target);
+			mTaskflow.emplace([&, target](tf::Subflow& aSubflow) {
+				CFileSystem::FindFiles(target,
+					[&](std::filesystem::path aP) { 
+						MakeTasksToHashFile(aSubflow, aP, aDoneCb);
+					});
+			});
 		}
 	}
 
 	mExecutor.run(mTaskflow).wait(); 
-
-	// This should be in a UserOutput class or something
-	if(sgBadSums) {
-		std::cerr << "sha256sum: WARNING: " << sgBadSums << " computed ";
-		std::cerr << ((sgBadSums == 1) ? "checksum" : "checksums");
-		std::cerr << " did NOT match" << std::endl;
-	}
-
-	CUserInput::Done();
-}
-
-
-// 
-// Destructor: Clean up state pointers when done
-//
-CScheduler::~CScheduler(void) {
 }
 
 
@@ -123,59 +120,3 @@ void CScheduler::MakeTasksToHashFile(tf::Subflow& aSubflow,
 	d.precede(d2);
 	d2.precede(b);
 }
-
-
-// 
-// MakeTasksToFindAndHashFiles: Create a task in a subflow to run
-// CFileSystem::FindFiles and, for each file found, run 
-// MakeTasksToHashFile on it (which makes more tasks in another
-// subflow)
-//
-tf::Task CScheduler::MakeTasksToFindAndHashFiles(tf::Taskflow& aTf, 
-		std::filesystem::path aTarget)
-{
-    return aTf.emplace([&, aTarget](tf::Subflow& aSubflow) {
-		CFileSystem::FindFiles(aTarget,
-			[&](std::filesystem::path aP) { 
-				MakeTasksToHashFile(aSubflow, aP,
-					[&](CTaskState *apState) {
-						std::lock_guard<std::mutex> lock(smOutputMtx);
-						std::cout << apState->GetChecksum() << "  " 
-						          << apState->GetPath().native()
-						          << std::endl;
-					});
-			});
-	});
-}
-
-
-// 
-// MakeTasksToFindAndHashFiles: Create a task in a subflow to 
-// read checksums from a file and, for each file found, run 
-// MakeTasksToHashFile on it (which makes more tasks in another
-// subflow)
-//
-tf::Task CScheduler::MakeTasksToReadAndCheckFiles(tf::Taskflow& aTf, 
-		std::filesystem::path aTarget)
-{
-    return aTf.emplace([&, aTarget](tf::Subflow& aSubflow) {
-		CUserInput::ReadChecksumsFromFile(aTarget,
-			[&](std::filesystem::path aP, std::string aChecksum) { 
-				MakeTasksToHashFile(aSubflow, aP,
-					[&, aChecksum](CTaskState *apState) {
-						apState->SetExpectedChecksum(aChecksum);
-						std::lock_guard<std::mutex> lock(smOutputMtx);
-						std::cout << apState->GetPath().native();
-						if(apState->ChecksumIsOk()) {
-						    std::cout << ": OK";
-						} else {
-						    std::cout << ": FAILED";
-							sgBadSums++;
-						}
-						std::cout << std::endl;
-					});
-			});
-	});
-}
-
-

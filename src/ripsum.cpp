@@ -20,6 +20,8 @@
 int main(int argc, char **argv) {
 	CUserInput config;
 	CScheduler s;
+	std::mutex outputMtx;
+	int badSums = 0;
 
 	config.ParseCommandline(argc, argv);
 
@@ -27,8 +29,38 @@ int main(int argc, char **argv) {
 		s.AddPath(p);
 	}
 
-	s.Run(config.mCheckFlag);
-	
+	if(config.mCheckFlag) {
+		s.Run(config.mCheckFlag,
+					[&](CTaskState *apState) {
+						std::lock_guard<std::mutex> lock(outputMtx);
+						std::cout << apState->GetPath().native();
+						if(apState->ChecksumIsOk()) {
+						    std::cout << ": OK";
+						} else {
+						    std::cout << ": FAILED";
+							badSums++;
+						}
+						std::cout << std::endl;
+					});
+	}
+	else {
+		s.Run(config.mCheckFlag,
+			  [&](CTaskState *apState) {
+				  std::lock_guard<std::mutex> lock(outputMtx);
+				  std::cout << apState->GetChecksum() << "  " 
+							<< apState->GetPath().native()
+							<< std::endl;
+			  });
+	}
+
+	if(badSums) {
+		std::cerr << "sha256sum: WARNING: " << badSums << " computed ";
+		std::cerr << ((badSums == 1) ? "checksum" : "checksums");
+		std::cerr << " did NOT match" << std::endl;
+	}
+
+	CUserInput::Done();
+
 	return 0;
 }
 

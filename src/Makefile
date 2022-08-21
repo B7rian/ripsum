@@ -16,6 +16,7 @@
 
 CPP=g++
 CPPFLAGS=-Ofast --std=c++17 
+#CPPFLAGS=-g --std=c++17 
 INCLUDES=-I taskflow
 
 ripsum: CTaskState.o CFile.o CHash.o CFileSystem.o CScheduler.o CUserInput.o CChecksumLine.o ripsum.cpp
