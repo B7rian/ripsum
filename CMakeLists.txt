@@ -23,17 +23,9 @@ include_directories(
 	${PROJECT_SOURCE_DIR}/src/taskflow
 	)
 
-add_executable(
-	ripsum 
-	src/ripsum.cpp 
-	src/CUserInput.cpp src/CUserInput.h
-	src/CChecksumLine.cpp src/CChecksumLine.h
-	src/CScheduler.cpp src/CScheduler.h
-	src/CFileSystem.cpp src/CFileSystem.h
-	src/CTaskState.cpp src/CTaskState.h
-	src/CHash.cpp src/CHash.h
-	src/CFile.cpp src/CFile.h
-	)
+file(GLOB SRCS src/*.cpp src/*.h)
+
+add_executable(ripsum ${SRCS})
 
 target_compile_features(ripsum PUBLIC cxx_std_17)
 
