@@ -25,8 +25,6 @@
 #include "CUserInput.h"
 #include "CChecksumLine.h"
 
-int CUserInput::smBadLines = 0;
-
 void CUserInput::ReadChecksumsFromFile(std::filesystem::path aP,
 			   std::function<void(std::filesystem::path, std::string)> aFileCb)
 {
@@ -34,7 +32,6 @@ void CUserInput::ReadChecksumsFromFile(std::filesystem::path aP,
 	std::string line;
 
 	sin.open(aP);
-	smBadLines = 0; 
 
 	while(std::getline(sin, line)) {
 		CChecksumLine parser(line);
@@ -42,21 +39,13 @@ void CUserInput::ReadChecksumsFromFile(std::filesystem::path aP,
 			aFileCb(parser.GetPath(), parser.GetChecksum());
 		}
 		else {
-			smBadLines++;
+			mOut.NotifyBadChecksumLine();
 		}
 	}
 }
 
-void CUserInput::Done(void) {
-	if(smBadLines > 0) {
-		std::cerr << "sha256sum: WARNING: " << smBadLines;
-		std::cerr << ((smBadLines == 1) ? " line is" : " lines are");
-		std::cerr << " improperly formatted" << std::endl;
-	}
-}
 
-
-// This code is heavily based on the example given in the documentation
+// This code is based on the example given in the documentation
 // for GNU getopt
 void CUserInput::ParseCommandline(int argc, char **argv) {
 	int option_index = 0;

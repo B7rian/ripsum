@@ -21,11 +21,12 @@
 #include "taskflow/taskflow.hpp"
 
 #include "CTaskState.h"
+#include "CUserInput.h"
 
 class CScheduler {
 public:
 	void AddPath(std::filesystem::path aP);
-	void Run(bool aCheckNotCompute,
+	void Run(CUserInput& input,
 		     std::function<void(CTaskState*)> aDoneCb);
 	~CScheduler(void) {}
 

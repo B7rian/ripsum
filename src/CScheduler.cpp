@@ -42,13 +42,13 @@ void CScheduler::AddPath(std::filesystem::path aP) {
 // Run: Set up taskflow tasks to perform the operations requested by 
 // the user - either check or compute checksums
 //
-void CScheduler::Run(bool aCheckNotCompute,
+void CScheduler::Run(CUserInput& aInput,
 	                 std::function<void(CTaskState*)> aDoneCb)
 {
-	if(aCheckNotCompute) {
+	if(aInput.mCheckFlag) {
 		for(auto& target: mvPaths) {
 			mTaskflow.emplace([&, target](tf::Subflow& aSubflow) {
-				CUserInput::ReadChecksumsFromFile(target,
+				aInput.ReadChecksumsFromFile(target,
 					[&](std::filesystem::path aP, std::string aChecksum) { 
 						MakeTasksToHashFile(aSubflow, aP, 
 							[&, aChecksum](CTaskState *apState) {

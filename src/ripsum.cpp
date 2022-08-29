@@ -16,50 +16,37 @@
 
 #include "CScheduler.h"
 #include "CUserInput.h"
+#include "CConsoleOutput.h"
 
 int main(int argc, char **argv) {
-	CUserInput config;
+	CConsoleOutput out;
+	CUserInput input(out);
 	CScheduler s;
-	std::mutex outputMtx;
-	int badSums = 0;
 
-	config.ParseCommandline(argc, argv);
+	input.ParseCommandline(argc, argv);
 
-	for(auto& p: config.mPaths) {
+	for(auto& p: input.mPaths) {
 		s.AddPath(p);
 	}
 
-	if(config.mCheckFlag) {
-		s.Run(config.mCheckFlag,
-					[&](CTaskState *apState) {
-						std::lock_guard<std::mutex> lock(outputMtx);
-						std::cout << apState->GetPath().native();
-						if(apState->ChecksumIsOk()) {
-						    std::cout << ": OK";
-						} else {
-						    std::cout << ": FAILED";
-							badSums++;
-						}
-						std::cout << std::endl;
-					});
+	if(input.mCheckFlag) {
+		s.Run(input,
+			[&](CTaskState *apState) {
+				if(apState->ChecksumIsOk()) {
+				    out.NotifyGoodChecksum(apState);
+				}
+				else {
+				    out.NotifyBadChecksum(apState);
+				}
+			});
 	}
 	else {
-		s.Run(config.mCheckFlag,
-			  [&](CTaskState *apState) {
-				  std::lock_guard<std::mutex> lock(outputMtx);
-				  std::cout << apState->GetChecksum() << "  " 
-							<< apState->GetPath().native()
-							<< std::endl;
-			  });
+		s.Run(input, [&](CTaskState *apState) {
+			              out.NotifyGenerateDone(apState);
+			          });
 	}
 
-	if(badSums) {
-		std::cerr << "sha256sum: WARNING: " << badSums << " computed ";
-		std::cerr << ((badSums == 1) ? "checksum" : "checksums");
-		std::cerr << " did NOT match" << std::endl;
-	}
-
-	CUserInput::Done();
+	out.Done();
 
 	return 0;
 }

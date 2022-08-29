@@ -34,14 +34,16 @@
 // gives us are actually readable.
 //
 
+#include "CRipsumOutput.h"
+
 class CUserInput {
 public:
+    CUserInput(CRipsumOutput& out): mOut(out) {}
+
 	// Reads checksums from the given file and calls the given callback
 	// for each checksum read
-	static void ReadChecksumsFromFile(std::filesystem::path aP,
+	void ReadChecksumsFromFile(std::filesystem::path aP,
 		   std::function<void(std::filesystem::path, std::string)> aFileCb);
-
-	static void Done(void);
 
 	// Parses the command line (pass in argc and argv) and stores the found
 	// options and stuff in member variables
@@ -67,7 +69,6 @@ public:
 	std::vector<std::filesystem::path> mPaths;
 
 private:
-	static int smBadLines;
-
+	CRipsumOutput& mOut;
 };
 

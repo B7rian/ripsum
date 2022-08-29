@@ -19,8 +19,11 @@ CPPFLAGS=-Ofast --std=c++17
 #CPPFLAGS=-g --std=c++17 
 INCLUDES=-I taskflow
 
-ripsum: CTaskState.o CFile.o CHash.o CFileSystem.o CScheduler.o CUserInput.o CChecksumLine.o ripsum.cpp
-	$(CPP) $(CPPFLAGS) -o ripsum $(INCLUDES) ripsum.cpp CTaskState.o CFile.o CHash.o CFileSystem.o CScheduler.o CUserInput.o CChecksumLine.o -lcrypto -lpthread
+ripsum: CTaskState.o CFile.o CHash.o CFileSystem.o CScheduler.o CUserInput.o CChecksumLine.o CConsoleOutput.o ripsum.cpp
+	$(CPP) $(CPPFLAGS) -o ripsum $(INCLUDES) ripsum.cpp CTaskState.o CFile.o CHash.o CFileSystem.o CScheduler.o CUserInput.o CChecksumLine.o CConsoleOutput.o -lcrypto -lpthread
+
+CConsoleOutput.o: CConsoleOutput.cpp CConsoleOutput.h
+	$(CPP) $(CPPFLAGS) -c -o CConsoleOutput.o CConsoleOutput.cpp
 
 CFile.o: CFile.cpp CFile.h
 	$(CPP) $(CPPFLAGS) -c -o CFile.o CFile.cpp
