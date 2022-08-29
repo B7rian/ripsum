@@ -13,9 +13,9 @@ TEST_DATA=$PWD/../src
 # ripsum and compare the output (stderr, stdout, and return value)
 #
 function generate_and_compare() {
-	time find "$1" -type f -exec sha256sum $2 {} + 2> ref_gen.err | sort -k 2 > ref_gen.out
+	find "$1" -type f -exec sha256sum $2 {} + 2> ref_gen.err | sort -k 2 > ref_gen.out
 	RET1=$?
-	time $RIPSUM "$1" $2 2> ripsum_gen.err | sort -k 2 > ripsum_gen.out
+	$RIPSUM "$1" $2 2> ripsum_gen.err | sort -k 2 > ripsum_gen.out
 	RET2=$?
 
 	diff ref_gen.out ripsum_gen.out
@@ -31,9 +31,9 @@ function generate_and_compare() {
 # and ripsum and compare the output (stderr, stdout, and return value)
 #
 function check_and_compare() {
-	time sha256sum $1 2> ref_check.err | sort -k 2 > ref_check.out 
+	sha256sum $1 2> ref_check.err | sort -k 2 > ref_check.out 
 	RET1=$?
-	time $RIPSUM $1 2> ripsum_check.err | sort -k 2 > ripsum_check.out
+	$RIPSUM $1 2> ripsum_check.err | sort -k 2 > ripsum_check.out
 	RET2=$?
 
 	diff ref_check.out ripsum_check.out
