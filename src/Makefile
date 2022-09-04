@@ -22,29 +22,16 @@ INCLUDES=-I taskflow
 ripsum: CTaskState.o CFile.o CHash.o CFileSystem.o CScheduler.o CUserInput.o CChecksumLine.o CConsoleOutput.o ripsum.cpp
 	$(CPP) $(CPPFLAGS) -o ripsum $(INCLUDES) ripsum.cpp CTaskState.o CFile.o CHash.o CFileSystem.o CScheduler.o CUserInput.o CChecksumLine.o CConsoleOutput.o -lcrypto -lpthread
 
-CConsoleOutput.o: CConsoleOutput.cpp CConsoleOutput.h
-	$(CPP) $(CPPFLAGS) -c -o CConsoleOutput.o CConsoleOutput.cpp
-
-CFile.o: CFile.cpp CFile.h
-	$(CPP) $(CPPFLAGS) -c -o CFile.o CFile.cpp
-
-CHash.o: CHash.cpp CHash.h
-	$(CPP) $(CPPFLAGS) -c -o CHash.o CHash.cpp
-
-CFileSystem.o: CFileSystem.cpp CFileSystem.h
-	$(CPP) $(CPPFLAGS) -c -o CFileSystem.o CFileSystem.cpp
-
-CTaskState.o: CTaskState.cpp CTaskState.h
-	$(CPP) $(CPPFLAGS) -c -o CTaskState.o CTaskState.cpp
-
 CScheduler.o: CScheduler.cpp CScheduler.h
 	$(CPP) $(CPPFLAGS) -c $(INCLUDES) -o CScheduler.o CScheduler.cpp
 
+CConsoleOutput.o: CConsoleOutput.cpp CConsoleOutput.h
+CFile.o: CFile.cpp CFile.h
+CHash.o: CHash.cpp CHash.h
+CFileSystem.o: CFileSystem.cpp CFileSystem.h
+CTaskState.o: CTaskState.cpp CTaskState.h
 CUserInput.o: CUserInput.cpp CUserInput.h
-	$(CPP) $(CPPFLAGS) -c -o CUserInput.o CUserInput.cpp
-
 CChecksumLine.o: CChecksumLine.cpp CChecksumLine.h
-	$(CPP) $(CPPFLAGS) -c -o CChecksumLine.o CChecksumLine.cpp
 
 clean:
 	rm -f ripsum *.o

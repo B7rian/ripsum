@@ -73,16 +73,41 @@ void CScheduler::Run(CUserInput& aInput,
 	mExecutor.run(mTaskflow).wait(); 
 }
 
+//
+// MakeTasksToHashFile creates tasks to compute the has for a file.  Note that
+// taskflow requires a dummy task (called loopBack below) to avoid hanging.
+// This is in the taskflow docs somewhere.
+//
+// Pick single-buffer or double-buffered file reads below
+
+#if 0
 
 //
-// MakeTasksToHashFile: Like it's named.  Note that taskflow requires
-// a dummy task (called loopBack below) to avoid hanging.  This is in
-// the taskflow docs somewhere.
+// This is the single-file-buffer version of the flow.
 //
-void CScheduler::MakeTasksToHashFile(tf::Subflow& aSubflow, 
-		                             std::filesystem::path aP,
-			                         std::function<void(CTaskState*)> aDoneCb)
-{
+// xxx      is a strong dependency
+// --- or | is a week dependency
+//
+//      Init
+//        x
+//        x
+//  +-->Read 
+//  |     x      
+//  |     x    0
+//  |   Check?---+
+//  |     |      |
+//  |     | 1    |
+//  |     v      |
+//  |   Hash     |
+//  |     x      |
+//  |     x      |
+//  +--Loopback  |
+//               |
+//     Finish <--+
+//
+
+void CScheduler::MakeTasksToHashFile(tf::Subflow& aSubflow,
+		std::filesystem::path aP, std::function<void(CTaskState*)> aDoneCb) {
 	CTaskState *pState = new CTaskState(aP);
 
 	tf::Task a = aSubflow.emplace([=]() { 
@@ -94,7 +119,7 @@ void CScheduler::MakeTasksToHashFile(tf::Subflow& aSubflow,
 	}).name("read");
 
 	tf::Task c = aSubflow.emplace([=]() {
-		if(pState->GetBufCount() == 0) {
+		if(pState->FileOk() == false) {
 			return 1;
 		}
 		return 0;
@@ -120,3 +145,108 @@ void CScheduler::MakeTasksToHashFile(tf::Subflow& aSubflow,
 	d.precede(d2);
 	d2.precede(b);
 }
+
+#else
+
+//
+// This is the double-file-buffer version of the flow.  
+//
+// xxx      is a strong dependency
+// --- or | is a week dependency
+//
+//           Init
+//            x
+//    +----->Do
+//    |       x
+//    |   xxxxxxxxx
+//    |   x       x
+//    | Read0    Hash1
+//    |   x       x
+//    |   xxxxxxxxx
+//    |       x
+//    |      Sync
+//    |       x
+//    |   xxxxxxxxx
+//    |   x       x
+//    | Hash0    Read1
+//    |   x       x
+//    |   xxxxxxxxx
+//    |       x
+//    |     While----->Finish
+//    |       |
+//    +-------+
+//           
+// This is more like a do-while loop and doesn't need a special loopback node
+// to avoid deadlock.  The "Do" node is effectively a fork to kick off 2 tasks
+// in parallel (a read and a hash) which the "While" conditional node can't do.
+// The Sync node keeps things coordinated e.g. so the hash nodes don't get to
+// far ahead of the reads and vice versa. 
+//
+
+
+void CScheduler::MakeTasksToHashFile(tf::Subflow& aSubflow,
+		std::filesystem::path aP, std::function<void(CTaskState*)> aDoneCb) {
+	CTaskState *pState = new CTaskState(aP);
+
+	tf::Task init = aSubflow.emplace([=]() { 
+		pState->Init(); 
+		pState->ReadBytes(); // Prime the loop
+	}).name("init");
+
+	tf::Task do_task = aSubflow.emplace([=]() {
+		//std::cerr << "--do--" << std::endl;
+	}).name("do_task");
+
+	init.precede(do_task);
+
+	tf::Task read0 = aSubflow.emplace([=]() { 
+		pState->ReadBytes(); 
+	}).name("read0");
+
+	tf::Task hash1 = aSubflow.emplace([=]() { 
+		pState->AddBytesToHash(); 
+	}).name("hash1");
+
+	read0.succeed(do_task);
+	hash1.succeed(do_task);
+
+	tf::Task sync = aSubflow.emplace([=]() {
+		//std::cerr << "--sync--" << std::endl;
+	}).name("sync");
+
+	read0.precede(sync);
+	hash1.precede(sync);
+
+	tf::Task hash0 = aSubflow.emplace([=]() { 
+		pState->AddBytesToHash(); 
+	}).name("hash0");
+
+	tf::Task read1 = aSubflow.emplace([=]() { 
+		pState->ReadBytes(); 
+	}).name("read1");
+
+	hash0.succeed(sync);
+	read1.succeed(sync);
+
+	tf::Task while_task = aSubflow.emplace([=]() {
+		//std::cerr << "--while--" << std::endl;
+		if(pState->FileOk() == false) {
+			return 1;
+		}
+		return 0;
+	}).name("while_task");
+
+	hash0.precede(while_task);
+	read1.precede(while_task);
+
+	tf::Task finish = aSubflow.emplace([=]() {
+		//std::cerr << "--finish--" << std::endl;
+		pState->Finish();
+		aDoneCb(pState);
+		delete pState;
+	}).name("finish");
+
+	while_task.precede(do_task, finish);
+}
+
+#endif

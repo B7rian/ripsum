@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 
+#include <iostream>
 #include "CTaskState.h"
 
 void CTaskState::Init(void) {
@@ -27,6 +28,12 @@ void CTaskState::Finish(void) {
 }
 
 void CTaskState::AddBytesToHash(void) {
-	AddBytesToHash2(GetBuf(), GetBufCount());
+	uint8_t *pBuf;
+	uint32_t n;
+	n = GetBytes(pBuf);
+	//std::cerr << "*" << n << std::endl;
+	if(n > 0) {
+		AddBytesToHash2(pBuf, n);
+	}
 }
 

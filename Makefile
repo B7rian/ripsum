@@ -21,7 +21,8 @@ INCLUDES=-I taskflow
 src/ripsum: 
 	make -C src ripsum
 
-check: src/ripsum
+check:
+	make -C src ripsum
 	cd test && ./run_tests.sh
 
 clean:
