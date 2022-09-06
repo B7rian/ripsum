@@ -28,6 +28,7 @@ public:
 	void NotifyBadChecksum(CFile *apFile);
 	void NotifyGenerateDone(CTaskState *apState);
 	void NotifyBadChecksumLine(void);
+	void UserNeedsHelp(void);
 	void Done(void);
 
 private:

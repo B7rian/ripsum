@@ -25,6 +25,7 @@ public:
 	virtual void NotifyBadChecksum(CFile *apFile) = 0;
 	virtual void NotifyGenerateDone(CTaskState *apState) = 0;
 	virtual void NotifyBadChecksumLine(void) = 0;
+	virtual void UserNeedsHelp(void) = 0;
 	virtual void Done(void) = 0;
 };
 

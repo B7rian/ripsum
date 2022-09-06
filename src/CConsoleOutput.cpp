@@ -15,6 +15,7 @@
 //
 
 #include <iostream>
+#include <vector>
 
 #include "CConsoleOutput.h"
 
@@ -57,4 +58,28 @@ void CConsoleOutput::Done(void) {
 		std::cerr << " improperly formatted" << std::endl;
 	}
 }
+
+void CConsoleOutput::UserNeedsHelp(void) {
+	std::vector<std::string> vHelp= {
+"Usage: sha256sum [FILE | DIRECTORY]...",
+"       sha256sum -c [FILE]...",
+"Print of check SHA256 (256-bit) checksums.",
+"",
+"-c, --check\tread SHA256 sums from the FILEs and check them",
+"--help\tdisplay this help and exit",
+"",
+"Sums are checked and computed using OpenSSL or whatever libcrypt",
+"is installed on your system. The generated output is compatible with",
+"sha256sum from GNU coreutils and can be used interchangably with" ,
+"sha256sum on GNU systems to verify results.",
+"",
+"Only binary mode is supported.",
+};
+
+    for(auto& l: vHelp) {
+		std::cout << l << std::endl;
+	}
+}
+
+
 
