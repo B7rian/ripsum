@@ -19,23 +19,29 @@
 #include <functional>
 #include "CFileSystem.h"
 
-void CFileSystem::FindFiles(const std::filesystem::path aRootDir, 
+
+void CFileSystem::FindFiles(const std::filesystem::path aRoot, 
 		                    std::function<void(std::filesystem::path)> aFileCb) 
 {
-	std::list<std::filesystem::path> dirs;
+	std::list<std::filesystem::path> paths;
 
-	dirs.push_front(aRootDir);
+	paths.push_front(aRoot);
 
-	while(!dirs.empty()) {
-		std::filesystem::path dir = dirs.front();
-		dirs.pop_front();
-		for(auto& f: std::filesystem::directory_iterator(dir)) {
-			std::filesystem::path p{f.path()};
-			if(std::filesystem::is_regular_file(f)) {
-				aFileCb(p);
-			}
-			else if(std::filesystem::is_directory(f)) {
-				dirs.push_front(p);
+	while(!paths.empty()) {
+		std::filesystem::path p = paths.front();
+		paths.pop_front();
+
+		if(std::filesystem::is_regular_file(p)) {
+			aFileCb(p);
+		}
+		else if(std::filesystem::is_directory(p)) {
+			for(auto& entry: std::filesystem::directory_iterator(p)) {
+				if(entry.is_regular_file()) {
+					aFileCb(entry.path());
+				}
+				else if(entry.is_directory()) {
+					paths.push_front(entry.path());
+				}
 			}
 		}
 	}
