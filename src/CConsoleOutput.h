@@ -27,7 +27,7 @@ public:
 	void NotifyGoodChecksum(CFile *apFile);
 	void NotifyBadChecksum(CFile *apFile);
 	void NotifyGenerateDone(CTaskState *apState);
-	void NotifyBadChecksumLine(void);
+	void NotifyBadFileFormat(void);
 	void UserNeedsHelp(void);
 	void Done(void);
 

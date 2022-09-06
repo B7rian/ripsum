@@ -41,7 +41,7 @@ void CConsoleOutput::NotifyGenerateDone(CTaskState *apState) {
 			  << std::endl;
 }
 
-void CConsoleOutput::NotifyBadChecksumLine(void) {
+void CConsoleOutput::NotifyBadFileFormat(void) {
 	mBadLines++;
 }
 

@@ -39,7 +39,7 @@ void CUserInput::ReadChecksumsFromFile(std::filesystem::path aP,
 			aFileCb(parser.GetPath(), parser.GetChecksum());
 		}
 		else {
-			mOut.NotifyBadChecksumLine();
+			mOut.NotifyBadFileFormat();
 		}
 	}
 }
