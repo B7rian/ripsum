@@ -186,12 +186,15 @@ void CScheduler::MakeTasksToHashFile(tf::Subflow& aSubflow,
 
 void CScheduler::MakeTasksToHashFile(tf::Subflow& aSubflow,
 		std::filesystem::path aP, std::function<void(CTaskState*)> aDoneCb) {
+
 	CTaskState *pState = new CTaskState(aP);
 
 	tf::Task init = aSubflow.emplace([=]() { 
 		pState->Init(); 
 		pState->ReadBytes(); // Prime the loop
 	}).name("init");
+
+	init.acquire(mMemLimiter);
 
 	tf::Task do_task = aSubflow.emplace([=]() {
 		//std::cerr << "--do--" << std::endl;
@@ -247,6 +250,7 @@ void CScheduler::MakeTasksToHashFile(tf::Subflow& aSubflow,
 	}).name("finish");
 
 	while_task.precede(do_task, finish);
+	finish.release(mMemLimiter);
 }
 
 #endif

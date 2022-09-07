@@ -25,6 +25,7 @@
 
 class CScheduler {
 public:
+	CScheduler(void): mMemLimiter(std::thread::hardware_concurrency()) { }
 	void AddPath(std::filesystem::path aP);
 	void Run(CUserInput& input,
 		     std::function<void(CTaskState*)> aDoneCb);
@@ -33,6 +34,7 @@ public:
 private:
 	tf::Executor mExecutor;
 	tf::Taskflow mTaskflow;
+	tf::Semaphore mMemLimiter;	// This is to limit memory usage
 
 	std::vector<std::filesystem::path> mvPaths;
 

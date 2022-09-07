@@ -22,6 +22,7 @@
 void CBuffer::InitBuffer(CBuffer *apNextBuffer) {
 	mDataCount = 0;
 	mBytesRead = 0;
+	mpData = new uint8_t[FILE_BLOCK_SIZE];
 	mpNext = apNextBuffer;
 }
 
@@ -29,7 +30,7 @@ void CBuffer::InitBuffer(CBuffer *apNextBuffer) {
 bool CBuffer::ReadBytes(std::ifstream& aSin) {
 	mDataCount = 0;
 	if(aSin.good() && !aSin.eof()) {
-		aSin.read((char *)mData, FILE_BLOCK_SIZE);
+		aSin.read((char *)mpData, FILE_BLOCK_SIZE);
 		mDataCount = aSin.gcount();
 		mBytesRead += aSin.gcount();
 		//std::cerr << "<" << mDataCount << std::endl;
@@ -49,6 +50,8 @@ void CFile::InitFile(void) {
 
 // FinishFile: Just close the file when we're done
 void CFile::FinishFile(void) {
+	mPing.FinishBuffer();
+	mPong.FinishBuffer();
 	mSin.close();
 }
 

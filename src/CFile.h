@@ -45,9 +45,10 @@ class CBuffer {
 		// ReadBytes reads bytes from the stream into the buffer and
 		// returns true if it gets anything
 		bool ReadBytes(std::ifstream& aSin);
+		void FinishBuffer(void) { delete[] mpData; } 
 
 		// GetData returns a pointer to the last-read data
-		uint8_t *GetData(void) { return mData; }
+		uint8_t *GetData(void) { return mpData; }
 		// GetDataCount returns the number of bytes from the last read
 		uint32_t GetDataCount(void) { return mDataCount; }
 		// GetTotalBytes read returns the number of bytes read across
@@ -61,7 +62,7 @@ class CBuffer {
 										// Number of bytes to read each time
 
 		CBuffer *mpNext;
-		uint8_t mData[FILE_BLOCK_SIZE];	// File data
+		uint8_t *mpData;				// File data
 		uint32_t mDataCount = 0;		// Bytes in file buffer
 		uint32_t mBytesRead = 0;		// Total bytes read from file
 };
