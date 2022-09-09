@@ -17,8 +17,4 @@
 cmake_minimum_required(VERSION 3.12)	# 3.12 supports OpenSSL::SSL
 project(ripsum)
 
-enable_testing()
-
-add_subdirectory(src)
-add_subdirectory(test)
-
+add_test(NAME TestName COMMAND ${CMAKE_SOURCE_DIR}/test/run_tests.sh)
