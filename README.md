@@ -29,7 +29,7 @@ ripsum ignores symlinks.
 
 # Build
 
-Ripsum can be built on Linux with a simple `make` and tested with `make check`. 
+Ripsum can be built on Linux with basic cmake commands. 
 
 You may need to install the libssl development package for your Linux distro.
 On void, Ubuntu, and Ubuntu derivitives like Zorin it's called libssl-dev. 
@@ -39,7 +39,7 @@ cores and the needed headers from taskflow are included in the ripsum git repo.
 
 # Testing
 
-`make check` will run both sha256sum and ripsum and compare the output. The
+`make test` in the cmake build directory will run both sha256sum and ripsum and compare the output. The
 tests are run on the taskflow subdirectory by default but you can change
 run_tests.sh script to use your own dataset. For example, before release I run
 the tests on about 167000 files on a 1TB external drive and make sure the
