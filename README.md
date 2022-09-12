@@ -30,9 +30,11 @@ ripsum ignores symlinks.
 # Build
 
 Ripsum can be built on Linux with basic cmake commands. 
-> mkdir build && cd build
-> cmake ..
-> cmake --build 
+```
+mkdir build && cd build
+cmake ..
+cmake --build 
+```
 
 You may need to install the libssl development package for your Linux distro.
 On void, Ubuntu, and Ubuntu derivitives like Zorin it's called libssl-dev. 
