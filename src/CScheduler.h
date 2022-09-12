@@ -41,12 +41,6 @@ private:
 	void MakeTasksToHashFile(tf::Subflow& aSubflow, 
 							 std::filesystem::path aP,
 							 std::function<void(CTaskState*)> aDoneCb);
-	tf::Task MakeTasksToFindAndHashFiles(tf::Taskflow& aTf, 
-		 std::filesystem::path aTarget,
-		 std::function<void(CTaskState*)> aDoneCb);
-	tf::Task MakeTasksToReadAndCheckFiles(tf::Taskflow& aTf, 
-		 std::filesystem::path aTarget,
-		 std::function<void(CTaskState*)> aDoneCb);
 
 };
 
