@@ -22,6 +22,8 @@
 
 #include <iostream>
 
+static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> c {};
+
 
 //
 // CCheckSumLine
@@ -47,7 +49,7 @@ CChecksumLine::CChecksumLine(std::string aLine)
 
 	// captures[0] is the whole match
 	mChecksum = captures[1];
-	mPath = captures[2];
+	mPath = c.from_bytes(captures[2]);
 
 	mOk = true;
 

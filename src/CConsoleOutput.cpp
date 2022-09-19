@@ -15,20 +15,21 @@
 //
 
 #include <iostream>
+#include <ostream>
 #include <vector>
 
 #include "CConsoleOutput.h"
 
 void CConsoleOutput::NotifyGoodChecksum(CFile *apFile) {
 	std::lock_guard<std::mutex> lock(outputMtx);
-	std::cout << apFile->GetPath().native();
+	std::cout << apFile->GetPath().u8string();
 	std::cout << ": OK";
 	std::cout << std::endl;
 }
 
 void CConsoleOutput::NotifyBadChecksum(CFile *apFile) {
 	std::lock_guard<std::mutex> lock(outputMtx);
-	std::cout << apFile->GetPath().native();
+	std::cout << apFile->GetPath().u8string();
 	std::cout << ": FAILED";
 	std::cout << std::endl;
 	mBadSums++;
@@ -37,7 +38,7 @@ void CConsoleOutput::NotifyBadChecksum(CFile *apFile) {
 void CConsoleOutput::NotifyGenerateDone(CTaskState *apState) {
 	std::lock_guard<std::mutex> lock(outputMtx);
 	std::cout << apState->GetChecksum() << "  " 
-			  << apState->GetPath().native()
+			  << apState->GetPath().u8string()
 			  << std::endl;
 }
 
