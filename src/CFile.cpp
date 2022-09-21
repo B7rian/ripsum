@@ -33,7 +33,7 @@ bool CBuffer::ReadBytes(std::ifstream& aSin) {
 		aSin.read((char *)mpData, FILE_BLOCK_SIZE);
 		mDataCount = aSin.gcount();
 		mBytesRead += aSin.gcount();
-		//std::cerr << "<" << mDataCount << std::endl;
+		//std::cerr << "<" << mDataCount << '\n';
 	}
 	return (mDataCount > 0);
 }
