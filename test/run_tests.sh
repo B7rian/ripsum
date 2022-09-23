@@ -3,7 +3,7 @@
 set -e
 
 TMPDIR=`mktemp -d`
-RIPSUM=$PWD/src/ripsum
+RIPSUM=$PWD/../src/ripsum
 TEST_DATA=$PWD
 #TEST_DATA=/run/media/bwh/Samsung_T5/White
 #TEST_DATA=/media/bwh/0913363e-4c27-4171-ab30-45bb5301d496/home/bwh/Pictures
