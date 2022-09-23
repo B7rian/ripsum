@@ -1,6 +1,8 @@
-#!/bin/sh
+#!/bin/env sh
 
 set -e
+
+echo Running tests from $PWD
 
 TMPDIR=`mktemp -d`
 RIPSUM=$PWD/../src/ripsum
@@ -21,7 +23,7 @@ fi
 # generate_and_compare: Generate checksums using both find+sha256sum and 
 # ripsum and compare the output (stderr, stdout, and return value)
 #
-function generate_and_compare() {
+generate_and_compare() {
 	find "$1" -type f -exec sha256sum $2 {} + 2> ref_gen.err | sort -k 2 | $UNIX2DOS > ref_gen.out
 	RET1=$?
 	$RIPSUM "$1" $2 2> ripsum_gen.err | sort -k 2 > ripsum_gen.out
@@ -39,7 +41,7 @@ function generate_and_compare() {
 # check_and_compare: Check checksums in a file using both find+sha256sum 
 # and ripsum and compare the output (stderr, stdout, and return value)
 #
-function check_and_compare() {
+check_and_compare() {
 	sha256sum $1 2> ref_check.err | sort -k 2 | $UNIX2DOS > ref_check.out 
 	RET1=$?
 	$RIPSUM $1 2> ripsum_check.err | sort -k 2 > ripsum_check.out
