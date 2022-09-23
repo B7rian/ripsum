@@ -15,30 +15,48 @@
 //
 
 #include <iostream>
+#include <ostream>
 #include <vector>
 
 #include "CConsoleOutput.h"
 
+// 
+// Windows NTFS paths are UTF-16.  
+// Linux paths are UTF-8
+// I don't know what encoding is used when reading NTFS on Linux.  
+//
+// C++ seems to think the encoding is OS-specific but it is filesystem-specific and can
+// be different on 1 OS reading mixed filesystems.
+//
+// Conversion from UTF-16 is not defined (well?) in C++.  Come up with a better
+// solution
+//
+
 void CConsoleOutput::NotifyGoodChecksum(CFile *apFile) {
 	std::lock_guard<std::mutex> lock(outputMtx);
-	std::cout << apFile->GetPath().native();
+	std::cout << apFile->GetPath().generic_u8string(); 
 	std::cout << ": OK";
-	std::cout << std::endl;
+	std::cout << '\n';
 }
 
 void CConsoleOutput::NotifyBadChecksum(CFile *apFile) {
 	std::lock_guard<std::mutex> lock(outputMtx);
-	std::cout << apFile->GetPath().native();
+	std::cout << apFile->GetPath().generic_u8string();
 	std::cout << ": FAILED";
-	std::cout << std::endl;
+	std::cout << '\n';
 	mBadSums++;
 }
 
 void CConsoleOutput::NotifyGenerateDone(CTaskState *apState) {
 	std::lock_guard<std::mutex> lock(outputMtx);
-	std::cout << apState->GetChecksum() << "  " 
-			  << apState->GetPath().native()
-			  << std::endl;
+	std::cout << apState->GetChecksum() 
+#if defined(__MINGW64__ ) || defined(__MINGW32__)
+			<< " *" 
+#else
+			<< "  " 
+#endif
+			<< apState->GetPath().generic_u8string()
+			<< '\n';
 }
 
 void CConsoleOutput::NotifyBadFileFormat(void) {
@@ -49,13 +67,13 @@ void CConsoleOutput::Done(void) {
 	if(mBadSums) {
 		std::cerr << "sha256sum: WARNING: " << mBadSums << " computed ";
 		std::cerr << ((mBadSums == 1) ? "checksum" : "checksums");
-		std::cerr << " did NOT match" << std::endl;
+		std::cerr << " did NOT match" << '\n';
 	}
 
 	if(mBadLines > 0) {
 		std::cerr << "sha256sum: WARNING: " << mBadLines;
 		std::cerr << ((mBadLines == 1) ? " line is" : " lines are");
-		std::cerr << " improperly formatted" << std::endl;
+		std::cerr << " improperly formatted" << '\n';
 	}
 }
 
@@ -77,7 +95,7 @@ void CConsoleOutput::UserNeedsHelp(void) {
 };
 
     for(auto& l: vHelp) {
-		std::cout << l << std::endl;
+		std::cout << l << '\n';
 	}
 }
 

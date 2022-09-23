@@ -1,19 +1,30 @@
-#!/bin/env bash
+#!/bin/env sh
 
 set -e
 
+echo Running tests from $PWD
+
 TMPDIR=`mktemp -d`
 RIPSUM=$PWD/../src/ripsum
-TEST_DATA=$PWD/../src
+TEST_DATA=$PWD
 #TEST_DATA=/run/media/bwh/Samsung_T5/White
 #TEST_DATA=/media/bwh/0913363e-4c27-4171-ab30-45bb5301d496/home/bwh/Pictures
+
+# On MINGW64 sha256sum outputs unix-style newlines, so when we're on MINGS64 use
+# unix2dos to convert the newlines.  On Linux, we don't need unix2dos so just use
+# cat (which won't modify anything)
+if [ x$MSYSTEM = xMINGW64 ]; then
+	export UNIX2DOS=unix2dos
+else
+	export UNIX2DOS=cat
+fi
 
 #
 # generate_and_compare: Generate checksums using both find+sha256sum and 
 # ripsum and compare the output (stderr, stdout, and return value)
 #
-function generate_and_compare() {
-	find "$1" -type f -exec sha256sum $2 {} + 2> ref_gen.err | sort -k 2 > ref_gen.out
+generate_and_compare() {
+	find "$1" -type f -exec sha256sum $2 {} + 2> ref_gen.err | sort -k 2 | $UNIX2DOS > ref_gen.out
 	RET1=$?
 	$RIPSUM "$1" $2 2> ripsum_gen.err | sort -k 2 > ripsum_gen.out
 	RET2=$?
@@ -30,8 +41,8 @@ function generate_and_compare() {
 # check_and_compare: Check checksums in a file using both find+sha256sum 
 # and ripsum and compare the output (stderr, stdout, and return value)
 #
-function check_and_compare() {
-	sha256sum $1 2> ref_check.err | sort -k 2 > ref_check.out 
+check_and_compare() {
+	sha256sum $1 2> ref_check.err | sort -k 2 | $UNIX2DOS > ref_check.out 
 	RET1=$?
 	$RIPSUM $1 2> ripsum_check.err | sort -k 2 > ripsum_check.out
 	RET2=$?

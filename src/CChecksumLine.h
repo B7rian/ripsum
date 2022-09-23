@@ -36,7 +36,8 @@ public:
 
 private:
 	bool mOk;
-    std::filesystem::path mPath;
-    std::string mChecksum;
+	std::filesystem::path mPath;
+	std::string mChecksum;
+	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> mUTFConverter {};
 };
 
