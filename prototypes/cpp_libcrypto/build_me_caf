@@ -1,2 +1,0 @@
-echo ========================================================================
-g++ -g -o dedup --std=c++17 -I ../../actor-framework/libcaf_core -I ../../actor-framework/build/libcaf_core -I ../../actor-framework/libcaf_io -L ../../actor-framework/build/libcaf_core -L ../../actor-framework/build/libcaf_io dedup.cpp -lcrypto -lcaf_core

@@ -39,16 +39,11 @@ cmake --build
 You may need to install the libssl development package for your Linux distro.
 On void, Ubuntu, and Ubuntu derivitives like Zorin it's called libssl-dev. 
 
-ripsum uses [taskflow](https://taskflow.github.io) to run tasks on multiple
-cores and the needed headers from taskflow are included in the ripsum git repo. 
-
 # Testing
 
-`make test` in the cmake build directory will run both sha256sum and ripsum and compare the output. The
-tests are run on the taskflow subdirectory by default but you can change
-run_tests.sh script to use your own dataset. For example, before release I run
-the tests on about 167000 files on a 1TB external drive and make sure the
-results match. 
+`make test` in the cmake build directory will run both sha256sum and ripsum and
+compare the output. The tests are run on the build subdirectory by default
+but you can change run_tests.sh script to use your own dataset.
 
 # Performance
 

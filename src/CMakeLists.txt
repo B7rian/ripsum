@@ -17,7 +17,6 @@
 cmake_minimum_required(VERSION 3.12)	# 3.12 supports OpenSSL::SSL
 project(ripsum)
 
-include_directories(taskflow)
 file(GLOB SRCS *.cpp *.h)
 
 find_package(OpenSSL REQUIRED)

@@ -18,29 +18,23 @@
 
 #include <filesystem>
 #include <vector>
-#include "taskflow/taskflow.hpp"
 
 #include "CTaskState.h"
 #include "CUserInput.h"
 
 class CScheduler {
 public:
-	CScheduler(void): mMemLimiter(std::thread::hardware_concurrency()) { }
+	CScheduler(void) { }
 	void AddPath(std::filesystem::path aP);
 	void Run(CUserInput& input,
 		     std::function<void(CTaskState*)> aDoneCb);
 	~CScheduler(void) {}
 
 private:
-	tf::Executor mExecutor;
-	tf::Taskflow mTaskflow;
-	tf::Semaphore mMemLimiter;	// This is to limit memory usage
-
 	std::vector<std::filesystem::path> mvPaths;
 
-	void MakeTasksToHashFile(tf::Subflow& aSubflow, 
-							 std::filesystem::path aP,
-							 std::function<void(CTaskState*)> aDoneCb);
+	void HashFile(std::filesystem::path aP, 
+			std::function<void(CTaskState*)> aDoneCb);
 
 };
 
