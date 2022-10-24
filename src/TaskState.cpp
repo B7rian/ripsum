@@ -18,22 +18,22 @@
 #include "TaskState.h"
 
 void TaskState::Init(void) {
-	InitFile();
-	InitHash();
+    InitFile();
+    InitHash();
 }
 
 void TaskState::Finish(void) {
-	FinishFile();
-	FinishHash();
+    FinishFile();
+    FinishHash();
 }
 
 void TaskState::AddBytesToHash(void) {
-	uint8_t *pBuf;
-	uint32_t n;
-	n = GetBytes(pBuf);
-	//std::cerr << "*" << n << std::endl;
-	if(n > 0) {
-		AddBytesToHash2(pBuf, n);
-	}
+    uint8_t *pBuf;
+    uint32_t n;
+    n = GetBytes(pBuf);
+    //std::cerr << "*" << n << std::endl;
+    if(n > 0) {
+        AddBytesToHash2(pBuf, n);
+    }
 }
 

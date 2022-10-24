@@ -21,10 +21,10 @@
 #include "Hash.h"
 
 struct TaskState: public File, public Hash {
-	TaskState(const std::filesystem::path& aP): File(aP) { }
-	
-	void Init(void);
-	void Finish(void);
-	void AddBytesToHash(void);
+    TaskState(const std::filesystem::path& aP): File(aP) { }
+
+    void Init(void);
+    void Finish(void);
+    void AddBytesToHash(void);
 };
 

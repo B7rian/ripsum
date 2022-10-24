@@ -20,22 +20,26 @@
 #include <openssl/evp.h>
 
 class Hash {
-	public:
-		void InitHash(void);
-		void AddBytesToHash2(uint8_t *aBytes, uint32_t aCount);
-		void FinishHash(void);
-		std::string GetChecksum(void) { return mChecksum; }
-		void SetExpectedChecksum(const std::string& aChecksum) {
-			mExpectedChecksum = aChecksum;
-		}
-		bool ChecksumIsOk(void) { return mChecksum == mExpectedChecksum; }
+public:
+    void InitHash(void);
+    void AddBytesToHash2(uint8_t *aBytes, uint32_t aCount);
+    void FinishHash(void);
+    std::string GetChecksum(void) {
+        return mChecksum;
+    }
+    void SetExpectedChecksum(const std::string& aChecksum) {
+        mExpectedChecksum = aChecksum;
+    }
+    bool ChecksumIsOk(void) {
+        return mChecksum == mExpectedChecksum;
+    }
 
-	private:
-		EVP_MD_CTX *mCtx;
-		const EVP_MD *mMd;
-		unsigned char mOutDigest[EVP_MAX_MD_SIZE];
-		unsigned int mDigestLen;
-		std::string mChecksum;
-		std::string mExpectedChecksum;
+private:
+    EVP_MD_CTX *mCtx;
+    const EVP_MD *mMd;
+    unsigned char mOutDigest[EVP_MAX_MD_SIZE];
+    unsigned int mDigestLen;
+    std::string mChecksum;
+    std::string mExpectedChecksum;
 };
 

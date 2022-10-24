@@ -19,7 +19,7 @@
 #include <filesystem>
 
 class FileSystem {
-	public:
-		static void FindFiles(const std::filesystem::path aRootDir, 
-				            std::function<void(std::filesystem::path)> aFileCb);
+public:
+    static void FindFiles(const std::filesystem::path aRootDir,
+                          std::function<void(std::filesystem::path)> aFileCb);
 };
