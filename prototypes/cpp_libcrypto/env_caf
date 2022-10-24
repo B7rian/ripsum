@@ -1,4 +1,0 @@
-for i in core io ssl; do
-	LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/Projects/actor-framework/build/libcaf_$i
-done
-
