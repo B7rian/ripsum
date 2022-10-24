@@ -1,4 +1,4 @@
-# ripsum - Parallel/Multicore/Threaded sha256sum
+# ripsum - A faster sha256sum
 ripsum is meant to be a fast drop-in replacement for
 ```
 find <dirs...> -type f -exec sha256sum {} +
@@ -9,10 +9,10 @@ find <dirs...> -type f -exec sha256sum {} +
 sha256sum -c <checksum file>
 ```
 
-The name and features are inspired by 
+The name and features are inspired by
 [ripgrep](https://github.com/BurntSushi/ripgrep) which has, overall, a much
 better user experience than the find-grep commandlines it replaces (nothing
-against find or grep of course). I hope ripsum is as pleasent to use as ripgrep
+against find or grep of course). I hope ripsum is as nice to use as ripgrep
 someday. 
 
 # Usage
@@ -21,7 +21,7 @@ To generate checksums: `ripsum <dirs...>`
 The check previously generated checksums in a file:: `ripsum -c <checksum
 file>`
 
-checksum files are interchangable with sha256sum but don't support all features
+Checksum files are interchangable with sha256sum but don't support all features
 yet. In particular, the mode character is ignored and everything is done in
 binary mode. 
 
@@ -47,12 +47,17 @@ but you can change run_tests.sh script to use your own dataset.
 
 # Performance
 
+ripsum used to use a lot of threads, but the performance gains weren't 
+there and I'm currently working on benchmarks to determine the best path
+forward.
+
 ## CPU Utilization
-ripsum utilize as much of your CPU as it can and will likely saturate the I/O
-bandwidth on your system. You can infer that your I/O bandwidth is saturated if
-ripsum is running a large job and CPU utilization is less than 100% - in this
-case ripsum can't get the data off of the filesystem fast enough to keep the
-CPU busy.
+
+One of the goals of ripsum is to use as many CPU core/threads as are needed to
+take advantage of the I/O bandwidth on your system. You can infer that your I/O
+bandwidth is saturated if ripsum is running a large job and CPU utilization is
+less than 100% - in this case ripsum can't get the data off of the filesystem
+fast enough to keep the CPU busy. 
 
 Actual speedup vs. find+sha256sum depends on your system. For example, on
 systems with slower cores and/or fast I/O, you might see 4 or more cores
