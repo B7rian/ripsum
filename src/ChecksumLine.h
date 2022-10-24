@@ -17,24 +17,27 @@
 #pragma once
 
 #include <filesystem>
-#include <vector>
+#include <string>
 
-#include "CTaskState.h"
-#include "CUserInput.h"
 
-class CScheduler {
+// 
+// ChecksumLine and derived classes are able to parse input lined for
+// the various size digests that we may eventually support.
+//
+
+
+class ChecksumLine {
 public:
-	CScheduler(void) { }
-	void AddPath(std::filesystem::path aP);
-	void Run(CUserInput& input,
-		     std::function<void(CTaskState*)> aDoneCb);
-	~CScheduler(void) {}
+	ChecksumLine(std::string aLine);
+
+	bool IsOk(void) { return mOk; }
+	std::filesystem::path GetPath(void) { return mPath; }
+	std::string GetChecksum(void) { return mChecksum; }
 
 private:
-	std::vector<std::filesystem::path> mvPaths;
-
-	void HashFile(std::filesystem::path aP, 
-			std::function<void(CTaskState*)> aDoneCb);
-
+	bool mOk;
+	std::filesystem::path mPath;
+	std::string mChecksum;
+	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> mUTFConverter {};
 };
 

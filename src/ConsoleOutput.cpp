@@ -18,7 +18,7 @@
 #include <ostream>
 #include <vector>
 
-#include "CConsoleOutput.h"
+#include "ConsoleOutput.h"
 
 // 
 // Windows NTFS paths are UTF-16.  
@@ -32,14 +32,14 @@
 // solution
 //
 
-void CConsoleOutput::NotifyGoodChecksum(CFile *apFile) {
+void ConsoleOutput::NotifyGoodChecksum(File *apFile) {
 	std::lock_guard<std::mutex> lock(outputMtx);
 	std::cout << apFile->GetPath().generic_u8string(); 
 	std::cout << ": OK";
 	std::cout << '\n';
 }
 
-void CConsoleOutput::NotifyBadChecksum(CFile *apFile) {
+void ConsoleOutput::NotifyBadChecksum(File *apFile) {
 	std::lock_guard<std::mutex> lock(outputMtx);
 	std::cout << apFile->GetPath().generic_u8string();
 	std::cout << ": FAILED";
@@ -47,7 +47,7 @@ void CConsoleOutput::NotifyBadChecksum(CFile *apFile) {
 	mBadSums++;
 }
 
-void CConsoleOutput::NotifyGenerateDone(CTaskState *apState) {
+void ConsoleOutput::NotifyGenerateDone(TaskState *apState) {
 	std::lock_guard<std::mutex> lock(outputMtx);
 	std::cout << apState->GetChecksum() 
 #if defined(__MINGW64__ ) || defined(__MINGW32__)
@@ -59,11 +59,11 @@ void CConsoleOutput::NotifyGenerateDone(CTaskState *apState) {
 			<< '\n';
 }
 
-void CConsoleOutput::NotifyBadFileFormat(void) {
+void ConsoleOutput::NotifyBadFileFormat(void) {
 	mBadLines++;
 }
 
-void CConsoleOutput::Done(void) {
+void ConsoleOutput::Done(void) {
 	if(mBadSums) {
 		std::cerr << "sha256sum: WARNING: " << mBadSums << " computed ";
 		std::cerr << ((mBadSums == 1) ? "checksum" : "checksums");
@@ -77,7 +77,7 @@ void CConsoleOutput::Done(void) {
 	}
 }
 
-void CConsoleOutput::UserNeedsHelp(void) {
+void ConsoleOutput::UserNeedsHelp(void) {
 	std::vector<std::string> vHelp= {
 "Usage: sha256sum [FILE | DIRECTORY]...",
 "       sha256sum -c [FILE]...",

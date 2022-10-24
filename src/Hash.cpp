@@ -21,22 +21,22 @@
 #include <mutex>
 
 #include <openssl/evp.h>
-#include "CHash.h"
+#include "Hash.h"
 
 static std::mutex scary_global_mtx;
 
-void CHash::InitHash(void) {
+void Hash::InitHash(void) {
 	std::lock_guard<std::mutex> lock(scary_global_mtx);
 	mCtx = EVP_MD_CTX_new();
 	mMd = EVP_sha256();
 	EVP_DigestInit_ex(mCtx, mMd, NULL);
 }
 
-void CHash::AddBytesToHash2(uint8_t *aBytes, uint32_t aCount) {
+void Hash::AddBytesToHash2(uint8_t *aBytes, uint32_t aCount) {
 	EVP_DigestUpdate(mCtx, aBytes, aCount);
 }
 
-void CHash::FinishHash(void) {
+void Hash::FinishHash(void) {
 	EVP_DigestFinal_ex(mCtx, mOutDigest, &mDigestLen);
 
 	{

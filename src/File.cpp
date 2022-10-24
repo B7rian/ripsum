@@ -15,7 +15,7 @@
 //
 
 #include <iostream>
-#include "CFile.h"
+#include "File.h"
 
 // InitBuffer initializes internal state and saves the pointer to the 
 // next buffer for later
@@ -40,7 +40,7 @@ bool CBuffer::ReadBytes(std::ifstream& aSin) {
 
 
 // InitFile opens the file and sets up the double buffering
-void CFile::InitFile(void) {
+void File::InitFile(void) {
 	mSin.open(mPath, std::ios::binary);
 	mPing.InitBuffer(&mPong);
 	mPong.InitBuffer(&mPing);
@@ -49,7 +49,7 @@ void CFile::InitFile(void) {
 }
 
 // FinishFile: Just close the file when we're done
-void CFile::FinishFile(void) {
+void File::FinishFile(void) {
 	mPing.FinishBuffer();
 	mPong.FinishBuffer();
 	mSin.close();
@@ -58,21 +58,21 @@ void CFile::FinishFile(void) {
 
 // ReadBytes reads some bytes from the file into the current read buffer, then
 // swaps read buffers in preperation for the next read
-void CFile::ReadBytes(void) {
+void File::ReadBytes(void) {
 	mOk = mpReadBuffer->ReadBytes(mSin);
 	mpReadBuffer = mpReadBuffer->GetNextBuffer();
 }
 
 // GetBytes provides the "full" buffer and bytes count, then swaps buffers
 // for the next GetBytes call
-uint32_t CFile::GetBytes(uint8_t* &aBytes) {
+uint32_t File::GetBytes(uint8_t* &aBytes) {
 	aBytes = mpFullBuffer->GetData();
 	uint32_t count = mpFullBuffer->GetDataCount();
 	mpFullBuffer = mpFullBuffer->GetNextBuffer();
 	return count;
 }
 
-uint32_t CFile::GetTotalBytesRead(void) {
+uint32_t File::GetTotalBytesRead(void) {
 	// There's a possible race here with data reading functions
 	return mPing.GetTotalBytesRead() + mPong.GetTotalBytesRead();
 }

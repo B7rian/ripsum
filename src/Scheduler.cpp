@@ -22,17 +22,17 @@
 #include <fstream>
 #include <sstream>
 
-#include "CScheduler.h"
-#include "CTaskState.h"
-#include "CFileSystem.h"
-#include "CUserInput.h"
+#include "Scheduler.h"
+#include "TaskState.h"
+#include "FileSystem.h"
+#include "UserInput.h"
 
 
 //
 // AddPath: Save the given path for later.  Depending on which options
 // are given on the commandline, Run will decide what to do with them
 //
-void CScheduler::AddPath(std::filesystem::path aP) {
+void Scheduler::AddPath(std::filesystem::path aP) {
 	mvPaths.push_back(aP);
 }
 
@@ -40,15 +40,15 @@ void CScheduler::AddPath(std::filesystem::path aP) {
 // 
 // Run: Compute or check checksums depeding on user options.
 //
-void CScheduler::Run(CUserInput& aInput,
-	                 std::function<void(CTaskState*)> aDoneCb)
+void Scheduler::Run(UserInput& aInput,
+	                 std::function<void(TaskState*)> aDoneCb)
 {
 	if(aInput.mCheckFlag) {
 		for(auto& target: mvPaths) {
 			aInput.ReadChecksumsFromFile(target,
 				[&](std::filesystem::path aP, std::string aChecksum) { 
 					HashFile(aP, 
-						[&, aChecksum](CTaskState *apState) {
+						[&, aChecksum](TaskState *apState) {
 							apState->SetExpectedChecksum(aChecksum);
 							aDoneCb(apState);
 						});
@@ -57,7 +57,7 @@ void CScheduler::Run(CUserInput& aInput,
 	}
 	else {
 		for(auto& target: mvPaths) {
-			CFileSystem::FindFiles(target,
+			FileSystem::FindFiles(target,
 				[&](std::filesystem::path aP) { 
 					HashFile(aP, aDoneCb);
 				});
@@ -65,10 +65,10 @@ void CScheduler::Run(CUserInput& aInput,
 	}
 }
 
-void CScheduler::HashFile(std::filesystem::path aP, 
-		                  std::function<void(CTaskState*)> aDoneCb) 
+void Scheduler::HashFile(std::filesystem::path aP, 
+		                  std::function<void(TaskState*)> aDoneCb) 
 {
-	CTaskState *pState = new CTaskState(aP);
+	TaskState *pState = new TaskState(aP);
 
 	pState->Init(); 
 

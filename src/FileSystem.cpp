@@ -17,10 +17,10 @@
 #include <list>
 #include <filesystem>
 #include <functional>
-#include "CFileSystem.h"
+#include "FileSystem.h"
 
 
-void CFileSystem::FindFiles(const std::filesystem::path aRoot, 
+void FileSystem::FindFiles(const std::filesystem::path aRoot, 
 		                    std::function<void(std::filesystem::path)> aFileCb) 
 {
 	std::list<std::filesystem::path> paths;

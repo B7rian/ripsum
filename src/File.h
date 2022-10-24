@@ -35,7 +35,7 @@
 //
 // CBuffer is just a single buffer with some metadata around it and the 
 // ability to read from a file.  This is here so we don't have 2 copies
-// of every variable in CFile to manage double-buffering.
+// of every variable in File to manage double-buffering.
 //
 
 class CBuffer {
@@ -69,16 +69,16 @@ class CBuffer {
 
 
 // 
-// CFile is the file-related state that gets passed between the tasks inside
-// the scheduler.  CFile implements double-buffering so we can read the file
+// File is the file-related state that gets passed between the tasks inside
+// the scheduler.  File implements double-buffering so we can read the file
 // in parallel with processing in another class that we don't care about;
 // We just provide the data and ping pong between our buffers for file
 // reads and providing the data
 //
 
-class CFile {
+class File {
 	public:
-		CFile(const std::filesystem::path& aP): mPath(aP) { }
+		File(const std::filesystem::path& aP): mPath(aP) { }
 		
 		// InitFile sets up the file class to read the file
 		void InitFile(void);

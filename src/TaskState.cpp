@@ -14,17 +14,26 @@
 // limitations under the License.
 //
 
-#pragma once
-#include <filesystem>
+#include <iostream>
+#include "TaskState.h"
 
-#include "CFile.h"
-#include "CHash.h"
+void TaskState::Init(void) {
+	InitFile();
+	InitHash();
+}
 
-struct CTaskState: public CFile, public CHash {
-	CTaskState(const std::filesystem::path& aP): CFile(aP) { }
-	
-	void Init(void);
-	void Finish(void);
-	void AddBytesToHash(void);
-};
+void TaskState::Finish(void) {
+	FinishFile();
+	FinishHash();
+}
+
+void TaskState::AddBytesToHash(void) {
+	uint8_t *pBuf;
+	uint32_t n;
+	n = GetBytes(pBuf);
+	//std::cerr << "*" << n << std::endl;
+	if(n > 0) {
+		AddBytesToHash2(pBuf, n);
+	}
+}
 

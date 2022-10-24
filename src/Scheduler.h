@@ -16,16 +16,25 @@
 
 #pragma once
 
-#include "CFile.h"
-#include "CTaskState.h"
+#include <filesystem>
+#include <vector>
 
-class CRipsumOutput {
+#include "TaskState.h"
+#include "UserInput.h"
+
+class Scheduler {
 public:
-	virtual void NotifyGoodChecksum(CFile *apFile) = 0;
-	virtual void NotifyBadChecksum(CFile *apFile) = 0;
-	virtual void NotifyGenerateDone(CTaskState *apState) = 0;
-	virtual void NotifyBadFileFormat(void) = 0;
-	virtual void UserNeedsHelp(void) = 0;
-	virtual void Done(void) = 0;
+	Scheduler(void) { }
+	void AddPath(std::filesystem::path aP);
+	void Run(UserInput& input,
+		     std::function<void(TaskState*)> aDoneCb);
+	~Scheduler(void) {}
+
+private:
+	std::vector<std::filesystem::path> mvPaths;
+
+	void HashFile(std::filesystem::path aP, 
+			std::function<void(TaskState*)> aDoneCb);
+
 };
 

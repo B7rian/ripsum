@@ -22,10 +22,10 @@
 #include <getopt.h>
 #include <regex>
 
-#include "CUserInput.h"
-#include "CChecksumLine.h"
+#include "UserInput.h"
+#include "ChecksumLine.h"
 
-void CUserInput::ReadChecksumsFromFile(std::filesystem::path aP,
+void UserInput::ReadChecksumsFromFile(std::filesystem::path aP,
 			   std::function<void(std::filesystem::path, std::string)> aFileCb)
 {
 	std::ifstream sin;
@@ -34,7 +34,7 @@ void CUserInput::ReadChecksumsFromFile(std::filesystem::path aP,
 	sin.open(aP);
 
 	while(std::getline(sin, line)) {
-		CChecksumLine parser(line);
+		ChecksumLine parser(line);
 		if(parser.IsOk()) {
 			aFileCb(parser.GetPath(), parser.GetChecksum());
 		}
@@ -47,7 +47,7 @@ void CUserInput::ReadChecksumsFromFile(std::filesystem::path aP,
 
 // This code is based on the example given in the documentation
 // for GNU getopt
-void CUserInput::ParseCommandline(int argc, char **argv) {
+void UserInput::ParseCommandline(int argc, char **argv) {
 	int option_index = 0;
 	int c;
 

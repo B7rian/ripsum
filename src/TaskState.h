@@ -15,25 +15,16 @@
 //
 
 #pragma once
+#include <filesystem>
 
-#include <mutex>
+#include "File.h"
+#include "Hash.h"
 
-#include "CFile.h"
-#include "CTaskState.h"
-#include "CRipsumOutput.h"
-
-class CConsoleOutput: public CRipsumOutput {
-public:
-	void NotifyGoodChecksum(CFile *apFile);
-	void NotifyBadChecksum(CFile *apFile);
-	void NotifyGenerateDone(CTaskState *apState);
-	void NotifyBadFileFormat(void);
-	void UserNeedsHelp(void);
-	void Done(void);
-
-private:
-	std::mutex outputMtx;
-	int mBadSums = 0;
-	int mBadLines = 0;
+struct TaskState: public File, public Hash {
+	TaskState(const std::filesystem::path& aP): File(aP) { }
+	
+	void Init(void);
+	void Finish(void);
+	void AddBytesToHash(void);
 };
 
