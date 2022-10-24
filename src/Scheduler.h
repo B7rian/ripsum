@@ -18,23 +18,23 @@
 
 #include <filesystem>
 #include <vector>
+#include <list>
+#include <functional>
 
 #include "TaskState.h"
-#include "UserInput.h"
+#include "RipsumOutput.h"
 
 class Scheduler {
 public:
     Scheduler(void) { }
     void AddPath(std::filesystem::path aP);
-    void Run(UserInput& input,
-             std::function<void(TaskState*)> aDoneCb);
-    ~Scheduler(void) {}
+    void Run(RipsumOutput& aOut);
+    ~Scheduler(void) { }
 
 private:
     std::vector<std::filesystem::path> mvPaths;
-
-    void HashFile(std::filesystem::path aP,
-                  std::function<void(TaskState*)> aDoneCb);
+    std::list<std::function<void(void)>> mlWork;
+    void HashFile(std::filesystem::path aP, RipsumOutput& aOut);
 
 };
 

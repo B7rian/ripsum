@@ -15,7 +15,6 @@
 //
 
 #include <iostream>
-#include <ostream>
 #include <vector>
 
 #include "ConsoleOutput.h"
@@ -32,30 +31,29 @@
 // solution
 //
 
-void ConsoleOutput::NotifyGoodChecksum(File *apFile) {
-    std::lock_guard<std::mutex> lock(outputMtx);
-    std::cout << apFile->GetPath().generic_u8string();
+void ConsoleOutput::NotifyGoodChecksum(const std::filesystem::path& aPath) {
+    std::cout << aPath.generic_u8string();
     std::cout << ": OK";
     std::cout << '\n';
 }
 
-void ConsoleOutput::NotifyBadChecksum(File *apFile) {
-    std::lock_guard<std::mutex> lock(outputMtx);
-    std::cout << apFile->GetPath().generic_u8string();
+void ConsoleOutput::NotifyBadChecksum(const std::filesystem::path& aPath) {
+    std::cout << aPath.generic_u8string();
     std::cout << ": FAILED";
     std::cout << '\n';
     mBadSums++;
 }
 
-void ConsoleOutput::NotifyGenerateDone(TaskState *apState) {
-    std::lock_guard<std::mutex> lock(outputMtx);
-    std::cout << apState->GetChecksum()
+void ConsoleOutput::NotifyChecksumReady(const std::filesystem::path& aPath,
+                                        const std::string& aChecksum)
+{
+    std::cout << aChecksum
 #if defined(__MINGW64__ ) || defined(__MINGW32__)
               << " *"
 #else
               << "  "
 #endif
-              << apState->GetPath().generic_u8string()
+              << aPath.generic_u8string()
               << '\n';
 }
 

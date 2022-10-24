@@ -29,23 +29,7 @@ int main(int argc, char **argv) {
         s.AddPath(p);
     }
 
-    if(input.mCheckFlag) {
-        s.Run(input,
-        [&](TaskState *apState) {
-            if(apState->ChecksumIsOk()) {
-                out.NotifyGoodChecksum(apState);
-            }
-            else {
-                out.NotifyBadChecksum(apState);
-            }
-        });
-    }
-    else {
-        s.Run(input, [&](TaskState *apState) {
-            out.NotifyGenerateDone(apState);
-        });
-    }
-
+    s.Run(out);
     out.Done();
 
     return 0;

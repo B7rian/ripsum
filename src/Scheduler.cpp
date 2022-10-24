@@ -25,7 +25,6 @@
 #include "Scheduler.h"
 #include "TaskState.h"
 #include "FileSystem.h"
-#include "UserInput.h"
 
 
 //
@@ -40,34 +39,16 @@ void Scheduler::AddPath(std::filesystem::path aP) {
 //
 // Run: Compute or check checksums depeding on user options.
 //
-void Scheduler::Run(UserInput& aInput,
-                    std::function<void(TaskState*)> aDoneCb)
-{
-    if(aInput.mCheckFlag) {
-        for(auto& target: mvPaths) {
-            aInput.ReadChecksumsFromFile(target,
-            [&](std::filesystem::path aP, std::string aChecksum) {
-                HashFile(aP,
-                [&, aChecksum](TaskState *apState) {
-                    apState->SetExpectedChecksum(aChecksum);
-                    aDoneCb(apState);
-                });
-            });
-        }
-    }
-    else {
-        for(auto& target: mvPaths) {
-            FileSystem::FindFiles(target,
-            [&](std::filesystem::path aP) {
-                HashFile(aP, aDoneCb);
-            });
-        }
+void Scheduler::Run(RipsumOutput& aOut) {
+    for(auto& target: mvPaths) {
+        FileSystem::FindFiles(target,
+        [&](std::filesystem::path aP) {
+            HashFile(aP, aOut);
+        });
     }
 }
 
-void Scheduler::HashFile(std::filesystem::path aP,
-                         std::function<void(TaskState*)> aDoneCb)
-{
+void Scheduler::HashFile(std::filesystem::path aP, RipsumOutput& aOut) {
     TaskState *pState = new TaskState(aP);
 
     pState->Init();
@@ -80,7 +61,7 @@ void Scheduler::HashFile(std::filesystem::path aP,
     pState->AddBytesToHash();
 
     pState->Finish();
-    aDoneCb(pState);
+    aOut.NotifyChecksumReady(aP, pState->GetChecksum());
     delete pState;
 }
 

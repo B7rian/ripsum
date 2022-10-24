@@ -16,23 +16,19 @@
 
 #pragma once
 
-#include <mutex>
-
-#include "File.h"
-#include "TaskState.h"
 #include "RipsumOutput.h"
 
 class ConsoleOutput: public RipsumOutput {
 public:
-    void NotifyGoodChecksum(File *apFile);
-    void NotifyBadChecksum(File *apFile);
-    void NotifyGenerateDone(TaskState *apState);
+    void NotifyGoodChecksum(const std::filesystem::path& aPath);
+    void NotifyBadChecksum(const std::filesystem::path& aPath);
+    void NotifyChecksumReady(const std::filesystem::path& aPath,
+                             const std::string& aChecksum);
     void NotifyBadFileFormat(void);
     void UserNeedsHelp(void);
     void Done(void);
 
 private:
-    std::mutex outputMtx;
     int mBadSums = 0;
     int mBadLines = 0;
 };

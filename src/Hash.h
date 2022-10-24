@@ -24,7 +24,7 @@ public:
     void InitHash(void);
     void AddBytesToHash2(uint8_t *aBytes, uint32_t aCount);
     void FinishHash(void);
-    std::string GetChecksum(void) {
+    const std::string& GetChecksum(void) {
         return mChecksum;
     }
     void SetExpectedChecksum(const std::string& aChecksum) {
