@@ -16,28 +16,24 @@
 
 #pragma once
 
-#include <filesystem>
-#include <string>
+#include <mutex>
 
+#include "File.h"
+#include "TaskState.h"
+#include "RipsumOutput.h"
 
-// 
-// CChecksumLine and derived classes are able to parse input lined for
-// the various size digests that we may eventually support.
-//
-
-
-class CChecksumLine {
+class ConsoleOutput: public RipsumOutput {
 public:
-	CChecksumLine(std::string aLine);
-
-	bool IsOk(void) { return mOk; }
-	std::filesystem::path GetPath(void) { return mPath; }
-	std::string GetChecksum(void) { return mChecksum; }
+	void NotifyGoodChecksum(File *apFile);
+	void NotifyBadChecksum(File *apFile);
+	void NotifyGenerateDone(TaskState *apState);
+	void NotifyBadFileFormat(void);
+	void UserNeedsHelp(void);
+	void Done(void);
 
 private:
-	bool mOk;
-	std::filesystem::path mPath;
-	std::string mChecksum;
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> mUTFConverter {};
+	std::mutex outputMtx;
+	int mBadSums = 0;
+	int mBadLines = 0;
 };
 

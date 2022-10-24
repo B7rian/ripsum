@@ -14,14 +14,14 @@
 // limitations under the License.
 //
 
-#include "CScheduler.h"
-#include "CUserInput.h"
-#include "CConsoleOutput.h"
+#include "Scheduler.h"
+#include "UserInput.h"
+#include "ConsoleOutput.h"
 
 int main(int argc, char **argv) {
-	CConsoleOutput out;
-	CUserInput input(out);
-	CScheduler s;
+	ConsoleOutput out;
+	UserInput input(out);
+	Scheduler s;
 
 	input.ParseCommandline(argc, argv);
 
@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
 
 	if(input.mCheckFlag) {
 		s.Run(input,
-			[&](CTaskState *apState) {
+			[&](TaskState *apState) {
 				if(apState->ChecksumIsOk()) {
 				    out.NotifyGoodChecksum(apState);
 				}
@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
 			});
 	}
 	else {
-		s.Run(input, [&](CTaskState *apState) {
+		s.Run(input, [&](TaskState *apState) {
 			              out.NotifyGenerateDone(apState);
 			          });
 	}

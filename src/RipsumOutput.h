@@ -15,27 +15,17 @@
 //
 
 #pragma once
-#include <cstdint>
-#include <string>
-#include <openssl/evp.h>
 
-class CHash {
-	public:
-		void InitHash(void);
-		void AddBytesToHash2(uint8_t *aBytes, uint32_t aCount);
-		void FinishHash(void);
-		std::string GetChecksum(void) { return mChecksum; }
-		void SetExpectedChecksum(const std::string& aChecksum) {
-			mExpectedChecksum = aChecksum;
-		}
-		bool ChecksumIsOk(void) { return mChecksum == mExpectedChecksum; }
+#include "File.h"
+#include "TaskState.h"
 
-	private:
-		EVP_MD_CTX *mCtx;
-		const EVP_MD *mMd;
-		unsigned char mOutDigest[EVP_MAX_MD_SIZE];
-		unsigned int mDigestLen;
-		std::string mChecksum;
-		std::string mExpectedChecksum;
+class RipsumOutput {
+public:
+	virtual void NotifyGoodChecksum(File *apFile) = 0;
+	virtual void NotifyBadChecksum(File *apFile) = 0;
+	virtual void NotifyGenerateDone(TaskState *apState) = 0;
+	virtual void NotifyBadFileFormat(void) = 0;
+	virtual void UserNeedsHelp(void) = 0;
+	virtual void Done(void) = 0;
 };
 

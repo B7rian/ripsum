@@ -18,7 +18,7 @@
 #include <functional>
 #include <regex>
 
-#include "CChecksumLine.h"
+#include "ChecksumLine.h"
 
 #include <iostream>
 
@@ -34,7 +34,7 @@
 // and may allow more filenames than sha256sum does
 //
 
-CChecksumLine::CChecksumLine(std::string aLine)
+ChecksumLine::ChecksumLine(std::string aLine)
 {
 	std::regex r("\\s*([0-9a-f]{64}) [ *](.*\\S)\\s*");
 	std::smatch captures;

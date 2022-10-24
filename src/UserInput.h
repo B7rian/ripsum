@@ -23,7 +23,7 @@
 
 
 // 
-// CUserInput was added so I could capture all the error checking of user 
+// UserInput was added so I could capture all the error checking of user 
 // input in 1 spot instead of having error checking sprinkled all over the 
 // rest of the code.  Errors caught here should be handled relatively 
 // gracefully, whereas errors encountered in other parts of the code can 
@@ -34,11 +34,11 @@
 // gives us are actually readable.
 //
 
-#include "CRipsumOutput.h"
+#include "RipsumOutput.h"
 
-class CUserInput {
+class UserInput {
 public:
-    CUserInput(CRipsumOutput& out): mOut(out) {}
+    UserInput(RipsumOutput& out): mOut(out) {}
 
 	// Reads checksums from the given file and calls the given callback
 	// for each checksum read
@@ -69,6 +69,6 @@ public:
 	std::vector<std::filesystem::path> mPaths;
 
 private:
-	CRipsumOutput& mOut;
+	RipsumOutput& mOut;
 };
 

@@ -14,26 +14,12 @@
 // limitations under the License.
 //
 
-#include <iostream>
-#include "CTaskState.h"
+#pragma once
 
-void CTaskState::Init(void) {
-	InitFile();
-	InitHash();
-}
+#include <filesystem>
 
-void CTaskState::Finish(void) {
-	FinishFile();
-	FinishHash();
-}
-
-void CTaskState::AddBytesToHash(void) {
-	uint8_t *pBuf;
-	uint32_t n;
-	n = GetBytes(pBuf);
-	//std::cerr << "*" << n << std::endl;
-	if(n > 0) {
-		AddBytesToHash2(pBuf, n);
-	}
-}
-
+class FileSystem {
+	public:
+		static void FindFiles(const std::filesystem::path aRootDir, 
+				            std::function<void(std::filesystem::path)> aFileCb);
+};
