@@ -24,17 +24,17 @@
 
 class Scheduler {
 public:
-	Scheduler(void) { }
-	void AddPath(std::filesystem::path aP);
-	void Run(UserInput& input,
-		     std::function<void(TaskState*)> aDoneCb);
-	~Scheduler(void) {}
+    Scheduler(void) { }
+    void AddPath(std::filesystem::path aP);
+    void Run(UserInput& input,
+             std::function<void(TaskState*)> aDoneCb);
+    ~Scheduler(void) {}
 
 private:
-	std::vector<std::filesystem::path> mvPaths;
+    std::vector<std::filesystem::path> mvPaths;
 
-	void HashFile(std::filesystem::path aP, 
-			std::function<void(TaskState*)> aDoneCb);
+    void HashFile(std::filesystem::path aP,
+                  std::function<void(TaskState*)> aDoneCb);
 
 };
 

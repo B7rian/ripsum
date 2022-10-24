@@ -20,7 +20,7 @@
 #include <string>
 
 
-// 
+//
 // ChecksumLine and derived classes are able to parse input lined for
 // the various size digests that we may eventually support.
 //
@@ -28,16 +28,22 @@
 
 class ChecksumLine {
 public:
-	ChecksumLine(std::string aLine);
+    ChecksumLine(std::string aLine);
 
-	bool IsOk(void) { return mOk; }
-	std::filesystem::path GetPath(void) { return mPath; }
-	std::string GetChecksum(void) { return mChecksum; }
+    bool IsOk(void) {
+        return mOk;
+    }
+    std::filesystem::path GetPath(void) {
+        return mPath;
+    }
+    std::string GetChecksum(void) {
+        return mChecksum;
+    }
 
 private:
-	bool mOk;
-	std::filesystem::path mPath;
-	std::string mChecksum;
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> mUTFConverter {};
+    bool mOk;
+    std::filesystem::path mPath;
+    std::string mChecksum;
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> mUTFConverter {};
 };
 

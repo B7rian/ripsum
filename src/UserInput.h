@@ -22,11 +22,11 @@
 #include <vector>
 
 
-// 
-// UserInput was added so I could capture all the error checking of user 
-// input in 1 spot instead of having error checking sprinkled all over the 
-// rest of the code.  Errors caught here should be handled relatively 
-// gracefully, whereas errors encountered in other parts of the code can 
+//
+// UserInput was added so I could capture all the error checking of user
+// input in 1 spot instead of having error checking sprinkled all over the
+// rest of the code.  Errors caught here should be handled relatively
+// gracefully, whereas errors encountered in other parts of the code can
 // do whatever
 //
 // It winds up being a good spot to put the command line parser, checksum file
@@ -40,35 +40,35 @@ class UserInput {
 public:
     UserInput(RipsumOutput& out): mOut(out) {}
 
-	// Reads checksums from the given file and calls the given callback
-	// for each checksum read
-	void ReadChecksumsFromFile(std::filesystem::path aP,
-		   std::function<void(std::filesystem::path, std::string)> aFileCb);
+    // Reads checksums from the given file and calls the given callback
+    // for each checksum read
+    void ReadChecksumsFromFile(std::filesystem::path aP,
+                               std::function<void(std::filesystem::path, std::string)> aFileCb);
 
-	// Parses the command line (pass in argc and argv) and stores the found
-	// options and stuff in member variables
+    // Parses the command line (pass in argc and argv) and stores the found
+    // options and stuff in member variables
     void ParseCommandline(int argc, char **argv);
 
-	// 1 member per command line flag, not valid until after ParseCommandLine
-	// is called correctly
-	int mBinaryFlag {0};
-	int mCheckFlag {0};
-	int mTagFlag {0};
-	int mTextFlag {0};
-	int mZeroFlag {0};
-	int mIgnoreMissingFlag {0};
-	int mQuietFlag {0};
-	int mStatusFlag {0};
-	int mStrictFlag {0};
-	int mWarnFlag {0};
-	int mHelpFlag {0};
-	int mVersionFlag {0};
+    // 1 member per command line flag, not valid until after ParseCommandLine
+    // is called correctly
+    int mBinaryFlag {0};
+    int mCheckFlag {0};
+    int mTagFlag {0};
+    int mTextFlag {0};
+    int mZeroFlag {0};
+    int mIgnoreMissingFlag {0};
+    int mQuietFlag {0};
+    int mStatusFlag {0};
+    int mStrictFlag {0};
+    int mWarnFlag {0};
+    int mHelpFlag {0};
+    int mVersionFlag {0};
 
-	// A list of (supposed) paths from the command line.  Not valid until 
-	// after ParseCommandLine is called correctly
-	std::vector<std::filesystem::path> mPaths;
+    // A list of (supposed) paths from the command line.  Not valid until
+    // after ParseCommandLine is called correctly
+    std::vector<std::filesystem::path> mPaths;
 
 private:
-	RipsumOutput& mOut;
+    RipsumOutput& mOut;
 };
 

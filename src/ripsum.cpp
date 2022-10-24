@@ -19,35 +19,35 @@
 #include "ConsoleOutput.h"
 
 int main(int argc, char **argv) {
-	ConsoleOutput out;
-	UserInput input(out);
-	Scheduler s;
+    ConsoleOutput out;
+    UserInput input(out);
+    Scheduler s;
 
-	input.ParseCommandline(argc, argv);
+    input.ParseCommandline(argc, argv);
 
-	for(auto& p: input.mPaths) {
-		s.AddPath(p);
-	}
+    for(auto& p: input.mPaths) {
+        s.AddPath(p);
+    }
 
-	if(input.mCheckFlag) {
-		s.Run(input,
-			[&](TaskState *apState) {
-				if(apState->ChecksumIsOk()) {
-				    out.NotifyGoodChecksum(apState);
-				}
-				else {
-				    out.NotifyBadChecksum(apState);
-				}
-			});
-	}
-	else {
-		s.Run(input, [&](TaskState *apState) {
-			              out.NotifyGenerateDone(apState);
-			          });
-	}
+    if(input.mCheckFlag) {
+        s.Run(input,
+        [&](TaskState *apState) {
+            if(apState->ChecksumIsOk()) {
+                out.NotifyGoodChecksum(apState);
+            }
+            else {
+                out.NotifyBadChecksum(apState);
+            }
+        });
+    }
+    else {
+        s.Run(input, [&](TaskState *apState) {
+            out.NotifyGenerateDone(apState);
+        });
+    }
 
-	out.Done();
+    out.Done();
 
-	return 0;
+    return 0;
 }
 

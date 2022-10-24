@@ -33,54 +33,54 @@
 // are given on the commandline, Run will decide what to do with them
 //
 void Scheduler::AddPath(std::filesystem::path aP) {
-	mvPaths.push_back(aP);
+    mvPaths.push_back(aP);
 }
 
 
-// 
+//
 // Run: Compute or check checksums depeding on user options.
 //
 void Scheduler::Run(UserInput& aInput,
-	                 std::function<void(TaskState*)> aDoneCb)
+                    std::function<void(TaskState*)> aDoneCb)
 {
-	if(aInput.mCheckFlag) {
-		for(auto& target: mvPaths) {
-			aInput.ReadChecksumsFromFile(target,
-				[&](std::filesystem::path aP, std::string aChecksum) { 
-					HashFile(aP, 
-						[&, aChecksum](TaskState *apState) {
-							apState->SetExpectedChecksum(aChecksum);
-							aDoneCb(apState);
-						});
-					});
-		}
-	}
-	else {
-		for(auto& target: mvPaths) {
-			FileSystem::FindFiles(target,
-				[&](std::filesystem::path aP) { 
-					HashFile(aP, aDoneCb);
-				});
-		}
-	}
+    if(aInput.mCheckFlag) {
+        for(auto& target: mvPaths) {
+            aInput.ReadChecksumsFromFile(target,
+            [&](std::filesystem::path aP, std::string aChecksum) {
+                HashFile(aP,
+                [&, aChecksum](TaskState *apState) {
+                    apState->SetExpectedChecksum(aChecksum);
+                    aDoneCb(apState);
+                });
+            });
+        }
+    }
+    else {
+        for(auto& target: mvPaths) {
+            FileSystem::FindFiles(target,
+            [&](std::filesystem::path aP) {
+                HashFile(aP, aDoneCb);
+            });
+        }
+    }
 }
 
-void Scheduler::HashFile(std::filesystem::path aP, 
-		                  std::function<void(TaskState*)> aDoneCb) 
+void Scheduler::HashFile(std::filesystem::path aP,
+                         std::function<void(TaskState*)> aDoneCb)
 {
-	TaskState *pState = new TaskState(aP);
+    TaskState *pState = new TaskState(aP);
 
-	pState->Init(); 
+    pState->Init();
 
-	pState->ReadBytes(); 
-	while(pState->FileOk() == true) {
-		pState->AddBytesToHash(); 
-		pState->ReadBytes(); 
-	}
-	pState->AddBytesToHash(); 
+    pState->ReadBytes();
+    while(pState->FileOk() == true) {
+        pState->AddBytesToHash();
+        pState->ReadBytes();
+    }
+    pState->AddBytesToHash();
 
-	pState->Finish();
-	aDoneCb(pState);
-	delete pState;
+    pState->Finish();
+    aDoneCb(pState);
+    delete pState;
 }
 

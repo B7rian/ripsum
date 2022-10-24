@@ -20,10 +20,10 @@
 
 #include "ConsoleOutput.h"
 
-// 
-// Windows NTFS paths are UTF-16.  
+//
+// Windows NTFS paths are UTF-16.
 // Linux paths are UTF-8
-// I don't know what encoding is used when reading NTFS on Linux.  
+// I don't know what encoding is used when reading NTFS on Linux.
 //
 // C++ seems to think the encoding is OS-specific but it is filesystem-specific and can
 // be different on 1 OS reading mixed filesystems.
@@ -33,70 +33,70 @@
 //
 
 void ConsoleOutput::NotifyGoodChecksum(File *apFile) {
-	std::lock_guard<std::mutex> lock(outputMtx);
-	std::cout << apFile->GetPath().generic_u8string(); 
-	std::cout << ": OK";
-	std::cout << '\n';
+    std::lock_guard<std::mutex> lock(outputMtx);
+    std::cout << apFile->GetPath().generic_u8string();
+    std::cout << ": OK";
+    std::cout << '\n';
 }
 
 void ConsoleOutput::NotifyBadChecksum(File *apFile) {
-	std::lock_guard<std::mutex> lock(outputMtx);
-	std::cout << apFile->GetPath().generic_u8string();
-	std::cout << ": FAILED";
-	std::cout << '\n';
-	mBadSums++;
+    std::lock_guard<std::mutex> lock(outputMtx);
+    std::cout << apFile->GetPath().generic_u8string();
+    std::cout << ": FAILED";
+    std::cout << '\n';
+    mBadSums++;
 }
 
 void ConsoleOutput::NotifyGenerateDone(TaskState *apState) {
-	std::lock_guard<std::mutex> lock(outputMtx);
-	std::cout << apState->GetChecksum() 
+    std::lock_guard<std::mutex> lock(outputMtx);
+    std::cout << apState->GetChecksum()
 #if defined(__MINGW64__ ) || defined(__MINGW32__)
-			<< " *" 
+              << " *"
 #else
-			<< "  " 
+              << "  "
 #endif
-			<< apState->GetPath().generic_u8string()
-			<< '\n';
+              << apState->GetPath().generic_u8string()
+              << '\n';
 }
 
 void ConsoleOutput::NotifyBadFileFormat(void) {
-	mBadLines++;
+    mBadLines++;
 }
 
 void ConsoleOutput::Done(void) {
-	if(mBadSums) {
-		std::cerr << "sha256sum: WARNING: " << mBadSums << " computed ";
-		std::cerr << ((mBadSums == 1) ? "checksum" : "checksums");
-		std::cerr << " did NOT match" << '\n';
-	}
+    if(mBadSums) {
+        std::cerr << "sha256sum: WARNING: " << mBadSums << " computed ";
+        std::cerr << ((mBadSums == 1) ? "checksum" : "checksums");
+        std::cerr << " did NOT match" << '\n';
+    }
 
-	if(mBadLines > 0) {
-		std::cerr << "sha256sum: WARNING: " << mBadLines;
-		std::cerr << ((mBadLines == 1) ? " line is" : " lines are");
-		std::cerr << " improperly formatted" << '\n';
-	}
+    if(mBadLines > 0) {
+        std::cerr << "sha256sum: WARNING: " << mBadLines;
+        std::cerr << ((mBadLines == 1) ? " line is" : " lines are");
+        std::cerr << " improperly formatted" << '\n';
+    }
 }
 
 void ConsoleOutput::UserNeedsHelp(void) {
-	std::vector<std::string> vHelp= {
-"Usage: sha256sum [FILE | DIRECTORY]...",
-"       sha256sum -c [FILE]...",
-"Print of check SHA256 (256-bit) checksums.",
-"",
-"-c, --check\tread SHA256 sums from the FILEs and check them",
-"--help\tdisplay this help and exit",
-"",
-"Sums are checked and computed using OpenSSL or whatever libcrypt",
-"is installed on your system. The generated output is compatible with",
-"sha256sum from GNU coreutils and can be used interchangably with" ,
-"sha256sum on GNU systems to verify results.",
-"",
-"Only binary mode is supported.",
-};
+    std::vector<std::string> vHelp= {
+        "Usage: sha256sum [FILE | DIRECTORY]...",
+        "       sha256sum -c [FILE]...",
+        "Print of check SHA256 (256-bit) checksums.",
+        "",
+        "-c, --check\tread SHA256 sums from the FILEs and check them",
+        "--help\tdisplay this help and exit",
+        "",
+        "Sums are checked and computed using OpenSSL or whatever libcrypt",
+        "is installed on your system. The generated output is compatible with",
+        "sha256sum from GNU coreutils and can be used interchangably with",
+        "sha256sum on GNU systems to verify results.",
+        "",
+        "Only binary mode is supported.",
+    };
 
     for(auto& l: vHelp) {
-		std::cout << l << '\n';
-	}
+        std::cout << l << '\n';
+    }
 }
 
 

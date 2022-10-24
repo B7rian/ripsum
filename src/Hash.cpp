@@ -26,31 +26,31 @@
 static std::mutex scary_global_mtx;
 
 void Hash::InitHash(void) {
-	std::lock_guard<std::mutex> lock(scary_global_mtx);
-	mCtx = EVP_MD_CTX_new();
-	mMd = EVP_sha256();
-	EVP_DigestInit_ex(mCtx, mMd, NULL);
+    std::lock_guard<std::mutex> lock(scary_global_mtx);
+    mCtx = EVP_MD_CTX_new();
+    mMd = EVP_sha256();
+    EVP_DigestInit_ex(mCtx, mMd, NULL);
 }
 
 void Hash::AddBytesToHash2(uint8_t *aBytes, uint32_t aCount) {
-	EVP_DigestUpdate(mCtx, aBytes, aCount);
+    EVP_DigestUpdate(mCtx, aBytes, aCount);
 }
 
 void Hash::FinishHash(void) {
-	EVP_DigestFinal_ex(mCtx, mOutDigest, &mDigestLen);
+    EVP_DigestFinal_ex(mCtx, mOutDigest, &mDigestLen);
 
-	{
-		std::lock_guard<std::mutex> lock(scary_global_mtx);
-		EVP_MD_CTX_free(mCtx);
-	}
+    {
+        std::lock_guard<std::mutex> lock(scary_global_mtx);
+        EVP_MD_CTX_free(mCtx);
+    }
 
-	std::stringstream str;
-	str << std::hex << std::setfill('0') << std::setw(2);
-	for(int i = 0; i < mDigestLen; i++) {
-		str << std::setfill('0') << std::setw(2) 
-			<< (unsigned int)mOutDigest[i];
-	}
+    std::stringstream str;
+    str << std::hex << std::setfill('0') << std::setw(2);
+    for(int i = 0; i < mDigestLen; i++) {
+        str << std::setfill('0') << std::setw(2)
+            << (unsigned int)mOutDigest[i];
+    }
 
-	mChecksum = str.str();
+    mChecksum = str.str();
 }
 

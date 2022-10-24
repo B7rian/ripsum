@@ -24,16 +24,16 @@
 
 class ConsoleOutput: public RipsumOutput {
 public:
-	void NotifyGoodChecksum(File *apFile);
-	void NotifyBadChecksum(File *apFile);
-	void NotifyGenerateDone(TaskState *apState);
-	void NotifyBadFileFormat(void);
-	void UserNeedsHelp(void);
-	void Done(void);
+    void NotifyGoodChecksum(File *apFile);
+    void NotifyBadChecksum(File *apFile);
+    void NotifyGenerateDone(TaskState *apState);
+    void NotifyBadFileFormat(void);
+    void UserNeedsHelp(void);
+    void Done(void);
 
 private:
-	std::mutex outputMtx;
-	int mBadSums = 0;
-	int mBadLines = 0;
+    std::mutex outputMtx;
+    int mBadSums = 0;
+    int mBadLines = 0;
 };
 
