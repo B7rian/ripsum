@@ -26,10 +26,9 @@ int main(int argc, char **argv) {
     input.ParseCommandline(argc, argv);
 
     for(auto& p: input.mPaths) {
-        s.AddPath(p);
+        s.ComputeChecksums(p, &out);
     }
 
-    s.Run(out);
     out.Done();
 
     return 0;

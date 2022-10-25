@@ -15,53 +15,63 @@
 //
 
 #include <iostream>
-#include <filesystem>
-#include <vector>
 #include <functional>
-#include <mutex>
-#include <fstream>
-#include <sstream>
 
 #include "Scheduler.h"
 #include "TaskState.h"
 #include "FileSystem.h"
 
+namespace {
 
-//
-// AddPath: Save the given path for later.  Depending on which options
-// are given on the commandline, Run will decide what to do with them
-//
-void Scheduler::AddPath(std::filesystem::path aP) {
-    mvPaths.push_back(aP);
+Work MakeChecksumFinishLambda(TaskState *apState) {
+    return [apState](void) {
+        apState->Finish();
+    };
+}
+
+Work MakeReadAndHashLambda(TaskState *apState, WorkList *aplWork) {
+    return [apState, aplWork](void) {
+        apState->ReadBytes();
+        if(apState->FileOk() == true) {
+            aplWork->push_front(MakeReadAndHashLambda(apState, aplWork));
+            apState->AddBytesToHash();
+        }
+        else {
+            aplWork->push_front(MakeChecksumFinishLambda(apState));
+        }
+    };
+}
+
+Work MakeGenerateChecksumLambda(TaskState *apState, WorkList *aplWork) {
+    return [apState, aplWork](void) {
+        apState->Init();
+        aplWork->push_front(MakeReadAndHashLambda(apState, aplWork));
+    };
+}
+
 }
 
 
 //
-// Run: Compute or check checksums depeding on user options.
+// ComputeChecksums
 //
-void Scheduler::Run(RipsumOutput& aOut) {
-    for(auto& target: mvPaths) {
-        FileSystem::FindFiles(target,
+
+void Scheduler::ComputeChecksums(const std::filesystem::path& aPath,
+                                 RipsumOutput *apOut) 
+{
+    FileSystem::FindFiles(aPath,
         [&](std::filesystem::path aP) {
-            HashFile(aP, aOut);
+            TaskState *apState = new TaskState(aP);
+            mlWork.push_front(MakeGenerateChecksumLambda(apState, &mlWork));
+
+            while(!mlWork.empty()) {
+                auto f = mlWork.front();
+                mlWork.pop_front();
+                f();
+            }
+
+            apOut->NotifyChecksumReady(aP, apState->GetChecksum());
+            delete apState;
         });
-    }
-}
-
-void Scheduler::HashFile(std::filesystem::path aP, RipsumOutput& aOut) {
-    TaskState *pState = new TaskState(aP);
-
-    pState->Init();
-
-    pState->ReadBytes();
-    while(pState->FileOk() == true) {
-        pState->AddBytesToHash();
-        pState->ReadBytes();
-    }
-    pState->AddBytesToHash();
-
-    pState->Finish();
-    aOut.NotifyChecksumReady(aP, pState->GetChecksum());
-    delete pState;
 }
 

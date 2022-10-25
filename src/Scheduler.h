@@ -24,17 +24,17 @@
 #include "TaskState.h"
 #include "RipsumOutput.h"
 
+using Work = std::function<void(void)>;
+using WorkList = std::list<Work>;
+
 class Scheduler {
 public:
     Scheduler(void) { }
-    void AddPath(std::filesystem::path aP);
-    void Run(RipsumOutput& aOut);
+    void ComputeChecksums(const std::filesystem::path& aP,
+                          RipsumOutput *apOut);
     ~Scheduler(void) { }
 
 private:
-    std::vector<std::filesystem::path> mvPaths;
-    std::list<std::function<void(void)>> mlWork;
-    void HashFile(std::filesystem::path aP, RipsumOutput& aOut);
-
+    WorkList mlWork;
 };
 
