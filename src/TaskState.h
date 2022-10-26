@@ -21,7 +21,8 @@
 #include "Hash.h"
 
 struct TaskState: public File, public Hash {
-    TaskState(const std::filesystem::path& aP): File(aP) { }
+    TaskState(const std::filesystem::path& aP, uint32_t aBlockSize)
+        : File(aP, aBlockSize) { }
 
     void Init(void);
     void Finish(void);

@@ -33,15 +33,16 @@
 //
 
 //
-// CBuffer is just a single buffer with some metadata around it and the
+// Buffer is just a single buffer with some metadata around it and the
 // ability to read from a file.  This is here so we don't have 2 copies
 // of every variable in File to manage double-buffering.
 //
 
-class CBuffer {
+class Buffer {
 public:
+    Buffer(uint32_t aBlockSize): mBlockSize(aBlockSize) {}
     // InitBuffer sets up the buffer for future reads and stuff
-    void InitBuffer(CBuffer *apNextBuffer);
+    void InitBuffer(Buffer *apNextBuffer);
     // ReadBytes reads bytes from the stream into the buffer and
     // returns true if it gets anything
     bool ReadBytes(std::ifstream& aSin);
@@ -63,15 +64,13 @@ public:
         return mBytesRead;
     }
     // GetNextBuffer provides a pointer to the next buffer to use
-    CBuffer *GetNextBuffer(void) {
+    Buffer *GetNextBuffer(void) {
         return mpNext;
     }
 
 private:
-    static const int FILE_BLOCK_SIZE { 8*1024 };
-    // Number of bytes to read each time
-
-    CBuffer *mpNext;
+    uint32_t mBlockSize;            // Number of bytes to read each time
+    Buffer *mpNext;                 // Pointer to next buffer in ring
     uint8_t *mpData;				// File data
     uint32_t mDataCount = 0;		// Bytes in file buffer
     uint32_t mBytesRead = 0;		// Total bytes read from file
@@ -88,7 +87,8 @@ private:
 
 class File {
 public:
-    File(const std::filesystem::path& aP): mPath(aP) { }
+    File(const std::filesystem::path& aP, uint32_t aBlockSize)
+        : mPath(aP), mPing(aBlockSize), mPong(aBlockSize) { }
 
     // InitFile sets up the file class to read the file
     void InitFile(void);
@@ -115,10 +115,10 @@ public:
 private:
     std::filesystem::path mPath;	// Path to file
     std::ifstream mSin;				// Input stream
-    CBuffer mPing;					// 1st buffer
-    CBuffer mPong;					// 2nd buffer
-    CBuffer *mpReadBuffer;			// Buffer that we're reading into
-    CBuffer *mpFullBuffer;			// Buffer with data to process
+    Buffer mPing;					// 1st buffer
+    Buffer mPong;					// 2nd buffer
+    Buffer *mpReadBuffer;			// Buffer that we're reading into
+    Buffer *mpFullBuffer;			// Buffer with data to process
     bool mOk;						// No errors and not EOF
 };
 

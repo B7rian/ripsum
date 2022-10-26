@@ -22,6 +22,7 @@
 #include <functional>
 
 #include "TaskState.h"
+#include "UserInput.h"
 #include "RipsumOutput.h"
 
 using Task = std::function<void(void)>;
@@ -31,6 +32,7 @@ class Executor {
 public:
     Executor(void) { }
     void ComputeChecksums(const std::filesystem::path& aP,
+                          UserInput& aConfig,
                           RipsumOutput *apOut);
     ~Executor(void) { }
 

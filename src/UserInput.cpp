@@ -93,10 +93,15 @@ void UserInput::ParseCommandline(int argc, char **argv) {
     if(mHelpFlag) {
         mOut.UserNeedsHelp();
     }
+    else if(mBlockSize < 0) {
+        std::cerr << "Block size (-s) needs to be greater than 0\n";
+        mOut.UserNeedsHelp();
+    }
     else {
         while(optind < argc) {
             mPaths.push_back(argv[optind++]);
         }
     }
+
 }
 

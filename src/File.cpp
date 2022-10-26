@@ -19,18 +19,18 @@
 
 // InitBuffer initializes internal state and saves the pointer to the
 // next buffer for later
-void CBuffer::InitBuffer(CBuffer *apNextBuffer) {
+void Buffer::InitBuffer(Buffer *apNextBuffer) {
     mDataCount = 0;
     mBytesRead = 0;
-    mpData = new uint8_t[FILE_BLOCK_SIZE];
+    mpData = new uint8_t[mBlockSize];
     mpNext = apNextBuffer;
 }
 
 // ReadBytes pulls some data from the file into the buffer.
-bool CBuffer::ReadBytes(std::ifstream& aSin) {
+bool Buffer::ReadBytes(std::ifstream& aSin) {
     mDataCount = 0;
     if(aSin.good() && !aSin.eof()) {
-        aSin.read((char *)mpData, FILE_BLOCK_SIZE);
+        aSin.read((char *)mpData, mBlockSize);
         mDataCount = aSin.gcount();
         mBytesRead += aSin.gcount();
         //std::cerr << "<" << mDataCount << '\n';

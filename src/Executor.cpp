@@ -57,11 +57,12 @@ Task MakeComputeChecksumLambda(TaskState *apState, TaskList *aplTasks) {
 //
 
 void Executor::ComputeChecksums(const std::filesystem::path& aPath,
-                                 RipsumOutput *apOut) 
+                                UserInput& aConfig,
+                                RipsumOutput *apOut) 
 {
     FileSystem::FindFiles(aPath,
         [&](std::filesystem::path aP) {
-            TaskState *apState = new TaskState(aP);
+            TaskState *apState = new TaskState(aP, aConfig.mBlockSize);
             mlTasks.push_front(MakeComputeChecksumLambda(apState, &mlTasks));
 
             while(!mlTasks.empty()) {
@@ -74,4 +75,5 @@ void Executor::ComputeChecksums(const std::filesystem::path& aPath,
             delete apState;
         });
 }
+
 

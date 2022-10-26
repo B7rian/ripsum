@@ -63,7 +63,7 @@ public:
     int mWarnFlag {0};
     int mHelpFlag {0};
     int mVersionFlag {0};
-    int mBlockSize {0};
+    int mBlockSize {8192};
 
     // A list of (supposed) paths from the command line.  Not valid until
     // after ParseCommandLine is called correctly
