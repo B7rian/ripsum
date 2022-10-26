@@ -24,8 +24,8 @@
 // Linux paths are UTF-8
 // I don't know what encoding is used when reading NTFS on Linux.
 //
-// C++ seems to think the encoding is OS-specific but it is filesystem-specific and can
-// be different on 1 OS reading mixed filesystems.
+// C++ seems to think the encoding is OS-specific but it is filesystem-specific
+// and can be different on 1 OS reading mixed filesystems.
 //
 // Conversion from UTF-16 is not defined (well?) in C++.  Come up with a better
 // solution
@@ -77,11 +77,12 @@ void ConsoleOutput::Done(void) {
 
 void ConsoleOutput::UserNeedsHelp(void) {
     std::vector<std::string> vHelp= {
-        "Usage: sha256sum [FILE | DIRECTORY]...",
-        "       sha256sum -c [FILE]...",
+        "Usage: sha256sum [OPTIONS] [FILE | DIRECTORY]...",
+        "       sha256sum [OPTIONS] -c [FILE]...",
         "Print of check SHA256 (256-bit) checksums.",
         "",
         "-c, --check\tread SHA256 sums from the FILEs and check them",
+        "-s <size>\tread <size> bytes at a time from the input file(s)",
         "--help\tdisplay this help and exit",
         "",
         "Sums are checked and computed using OpenSSL or whatever libcrypt",

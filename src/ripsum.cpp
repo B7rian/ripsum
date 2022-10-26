@@ -21,12 +21,12 @@
 int main(int argc, char **argv) {
     ConsoleOutput out;
     UserInput input(out);
-    Executor s;
+    Executor ex;
 
     input.ParseCommandline(argc, argv);
 
     for(auto& p: input.mPaths) {
-        s.ComputeChecksums(p, &out);
+        ex.ComputeChecksums(p, &out);
     }
 
     out.Done();
