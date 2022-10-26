@@ -59,6 +59,7 @@ void File::FinishFile(void) {
 // ReadBytes reads some bytes from the file into the current read buffer, then
 // swaps read buffers in preperation for the next read
 void File::ReadBytes(void) {
+    std::lock_guard<std::mutex> lock(mStreamMutex);
     mOk = mpReadBuffer->ReadBytes(mSin);
     mpReadBuffer = mpReadBuffer->GetNextBuffer();
 }

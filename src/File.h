@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <fstream>
 #include <filesystem>
+#include <mutex>
 
 //
 // The classes below implement double-buffered file reading.
@@ -115,6 +116,7 @@ public:
 private:
     std::filesystem::path mPath;	// Path to file
     std::ifstream mSin;				// Input stream
+    std::mutex mStreamMutex;        // Mutex for stream access
     Buffer mPing;					// 1st buffer
     Buffer mPong;					// 2nd buffer
     Buffer *mpReadBuffer;			// Buffer that we're reading into

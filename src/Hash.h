@@ -37,6 +37,7 @@ public:
 private:
     EVP_MD_CTX *mCtx;
     const EVP_MD *mMd;
+    std::mutex mDigestMutex;
     unsigned char mOutDigest[EVP_MAX_MD_SIZE];
     unsigned int mDigestLen;
     std::string mChecksum;
