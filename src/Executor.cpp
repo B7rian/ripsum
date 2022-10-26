@@ -17,7 +17,7 @@
 #include <iostream>
 #include <functional>
 
-#include "Scheduler.h"
+#include "Executor.h"
 #include "TaskState.h"
 #include "FileSystem.h"
 
@@ -56,7 +56,7 @@ Work MakeGenerateChecksumLambda(TaskState *apState, WorkList *aplWork) {
 // ComputeChecksums
 //
 
-void Scheduler::ComputeChecksums(const std::filesystem::path& aPath,
+void Executor::ComputeChecksums(const std::filesystem::path& aPath,
                                  RipsumOutput *apOut) 
 {
     FileSystem::FindFiles(aPath,

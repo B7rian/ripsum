@@ -14,14 +14,14 @@
 // limitations under the License.
 //
 
-#include "Scheduler.h"
+#include "Executor.h"
 #include "UserInput.h"
 #include "ConsoleOutput.h"
 
 int main(int argc, char **argv) {
     ConsoleOutput out;
     UserInput input(out);
-    Scheduler s;
+    Executor s;
 
     input.ParseCommandline(argc, argv);
 

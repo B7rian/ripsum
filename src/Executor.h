@@ -27,12 +27,12 @@
 using Work = std::function<void(void)>;
 using WorkList = std::list<Work>;
 
-class Scheduler {
+class Executor {
 public:
-    Scheduler(void) { }
+    Executor(void) { }
     void ComputeChecksums(const std::filesystem::path& aP,
                           RipsumOutput *apOut);
-    ~Scheduler(void) { }
+    ~Executor(void) { }
 
 private:
     WorkList mlWork;
