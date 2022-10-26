@@ -24,8 +24,8 @@
 #include "TaskState.h"
 #include "RipsumOutput.h"
 
-using Work = std::function<void(void)>;
-using WorkList = std::list<Work>;
+using Task = std::function<void(void)>;
+using TaskList = std::list<Task>;
 
 class Executor {
 public:
@@ -35,6 +35,6 @@ public:
     ~Executor(void) { }
 
 private:
-    WorkList mlWork;
+    TaskList mlTasks;
 };
 
