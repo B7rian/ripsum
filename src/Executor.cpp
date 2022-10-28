@@ -29,23 +29,23 @@ Task MakeChecksumFinishLambda(TaskState *apState) {
     };
 }
 
-Task MakeReadAndHashLambda(TaskState *apState, TaskList *aplTasks) {
-    return [apState, aplTasks](void) {
+Task MakeReadAndHashLambda(TaskState *apState, TaskList *apTasks) {
+    return [apState, apTasks](void) {
         apState->ReadBytes();
         if(apState->FileOk() == true) {
-            aplTasks->push_front(MakeReadAndHashLambda(apState, aplTasks));
+            apTasks->AddTask(MakeReadAndHashLambda(apState, apTasks));
             apState->AddBytesToHash();
         }
         else {
-            aplTasks->push_front(MakeChecksumFinishLambda(apState));
+            apTasks->AddTask(MakeChecksumFinishLambda(apState));
         }
     };
 }
 
-Task MakeComputeChecksumLambda(TaskState *apState, TaskList *aplTasks) {
-    return [apState, aplTasks](void) {
+Task MakeComputeChecksumLambda(TaskState *apState, TaskList *apTasks) {
+    return [apState, apTasks](void) {
         apState->Init();
-        aplTasks->push_front(MakeReadAndHashLambda(apState, aplTasks));
+        apTasks->AddTask(MakeReadAndHashLambda(apState, apTasks));
     };
 }
 
@@ -63,12 +63,11 @@ void Executor::ComputeChecksums(const std::filesystem::path& aPath,
     FileSystem::FindFiles(aPath,
         [&](std::filesystem::path aP) {
             TaskState *apState = new TaskState(aP, aConfig.mBlockSize);
-            mlTasks.push_front(MakeComputeChecksumLambda(apState, &mlTasks));
+            mTasks.AddTask(MakeComputeChecksumLambda(apState, &mTasks));
+            Task newTask;
 
-            while(!mlTasks.empty()) {
-                auto f = mlTasks.front();
-                mlTasks.pop_front();
-                f();
+            while(mTasks.GetTask(newTask)) {
+                newTask();
             }
 
             apOut->NotifyChecksumReady(aP, apState->GetChecksum());

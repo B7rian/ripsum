@@ -16,25 +16,27 @@
 
 #pragma once
 
-#include <filesystem>
-#include <list>
 #include <functional>
 #include <mutex>
+#include <vector>
 
-#include "TaskState.h"
-#include "UserInput.h"
-#include "RipsumOutput.h"
-#include "TaskList.h"
+// Shorthand for a Task.  Tasks have to capture everything they need to run
+using Task = std::function<void(void)>;
 
-class Executor {
+
+// A TaskList is a collection of tasks that are ready to be run
+class TaskList {
 public:
-    Executor(void) { }
-    void ComputeChecksums(const std::filesystem::path& aP,
-                          UserInput& aConfig,
-                          RipsumOutput *apOut);
-    ~Executor(void) { }
+    // AddTask adds a task to the list
+    void AddTask(const Task& aT);
+
+    // GetTask copies a tast to aT and returns true if there is a task
+    // to be gotten, otherwise returns false
+    bool GetTask(Task& aT);
 
 private:
-    TaskList mTasks;
+    std::vector<Task> mvTasks;  // Tasks to be run
+    std::mutex mTaskListMutex;  // Mutex for task vector
 };
+
 
