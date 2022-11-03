@@ -18,12 +18,10 @@
 #include "TaskState.h"
 
 void TaskState::Init(void) {
-    InitFile();
     InitHash();
 }
 
 void TaskState::Finish(void) {
-    FinishFile();
     FinishHash();
 }
 
@@ -34,6 +32,7 @@ void TaskState::AddBytesToHash(void) {
     //std::cerr << "*" << n << std::endl;
     if(n > 0) {
         AddBytesToHash2(pBuf, n);
+        CleanupBytes();
     }
 }
 

@@ -29,6 +29,7 @@ int main(int argc, char **argv) {
         ex.ComputeChecksums(p, input, &out);
     }
 
+    ex.Wait();
     out.Done();
 
     return 0;

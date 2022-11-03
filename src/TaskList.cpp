@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 
+#include <cstdlib>
 #include "TaskList.h"
 
 // AddTask is thread safe.  Put stuff at the back of the vector rather
@@ -25,12 +26,11 @@ void TaskList::AddTask(const Task& aT) {
     mvTasks.push_back(aT);
 }
 
-
 // GetTask is also thread safe. 
 bool TaskList::GetTask(Task& aT) {
     std::lock_guard<std::mutex> lock(mTaskListMutex);
     if(mvTasks.empty()) {
-        aT = [=]() { };
+        aT = [](){ abort(); };
         return false;
     }
 
@@ -39,5 +39,12 @@ bool TaskList::GetTask(Task& aT) {
     return true;
 }
 
+// Empty is thread safe too, but remember that a Worker might have a task
+// to run and be working on it even if the list is empty, and also that
+// Worker can add more tasks to the list before it's done.
+bool TaskList::Empty(void) {
+    std::lock_guard<std::mutex> lock(mTaskListMutex);
+    return mvTasks.empty();
+}
 
 

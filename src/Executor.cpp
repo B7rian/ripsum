@@ -21,31 +21,48 @@
 #include "TaskState.h"
 #include "FileSystem.h"
 
+
 namespace {
 
-Task MakeChecksumFinishLambda(TaskState *apState) {
-    return [apState](void) {
+Task MakeChecksumFinishLambda(TaskState *apState, 
+                              Executor *apEx,
+                              RipsumOutput *apOut) 
+{
+    return [apState, apEx, apOut](void) {
         apState->Finish();
+        std::cerr << "Finish " << apState->GetPath() << std::endl;
+        apOut->NotifyChecksumReady(apState->GetPath(), apState->GetChecksum());
+        delete apState;
+        apEx->ActivityDone();
     };
 }
 
-Task MakeReadAndHashLambda(TaskState *apState, TaskList *apTasks) {
-    return [apState, apTasks](void) {
+Task MakeReadAndHashLambda(TaskState *apState, 
+                           Executor *apEx,
+                           RipsumOutput *apOut) 
+{
+    return [apState, apEx, apOut](void) {
         apState->ReadBytes();
         if(apState->FileOk() == true) {
-            apTasks->AddTask(MakeReadAndHashLambda(apState, apTasks));
+            apEx->AddTask(MakeReadAndHashLambda(apState, apEx, apOut));
             apState->AddBytesToHash();
         }
         else {
-            apTasks->AddTask(MakeChecksumFinishLambda(apState));
+            apEx->AddTask(MakeChecksumFinishLambda(apState, apEx, apOut));
         }
     };
 }
 
-Task MakeComputeChecksumLambda(TaskState *apState, TaskList *apTasks) {
-    return [apState, apTasks](void) {
-        apState->Init();
-        apTasks->AddTask(MakeReadAndHashLambda(apState, apTasks));
+Task MakeComputeChecksumLambda(std::filesystem::path aP,
+                               uint32_t aBlockSize,
+                               Executor *apEx,
+                               RipsumOutput *apOut) 
+{
+    return [aP, aBlockSize, apEx, apOut](void) {
+        std::cerr << "Init " << aP << std::endl;
+        TaskState *pState = new TaskState(aP, aBlockSize);
+        pState->Init();
+        apEx->AddTask(MakeReadAndHashLambda(pState, apEx, apOut));
     };
 }
 
@@ -62,17 +79,60 @@ void Executor::ComputeChecksums(const std::filesystem::path& aPath,
 {
     FileSystem::FindFiles(aPath,
         [&](std::filesystem::path aP) {
-            TaskState *apState = new TaskState(aP, aConfig.mBlockSize);
-            mTasks.AddTask(MakeComputeChecksumLambda(apState, &mTasks));
-            Task newTask;
-
-            while(mTasks.GetTask(newTask)) {
-                newTask();
-            }
-
-            apOut->NotifyChecksumReady(aP, apState->GetChecksum());
-            delete apState;
+            ActivityStarted();  // Matching ActivityDone() is in the final Task
+            AddTask(MakeComputeChecksumLambda(aP, aConfig.mBlockSize, 
+                                              this, apOut));
         });
 }
 
+
+// ActivityStarted is called below to account for the main thread.  When
+// the main thread calls Wait() we'll decrement it to signal worker threads
+// that we don't have anything else to do
+Executor::Executor(void): mtRunning{0} {
+    ActivityStarted();
+    mlThreads.push_front(std::thread(&Executor::Worker, this));
+    //mlThreads.push_front(std::thread(&Executor::Worker, this));
+}
+
+
+// Wait for all the work to complete.  If the main thread has called Wait()
+// we assume it is also done doing stuff and call ActivityDone() to signal
+// the worker threads that it's done.
+void Executor::Wait(void) {
+    std::cerr << "** Wait" << std::endl;
+    ActivityDone();
+    while(mtRunning > 0 || !mTasks.Empty()) {
+        while(!mTasks.Empty()) {}
+        std::cerr << "** Tasks empty" << std::endl;
+        while(mtRunning > 0) {}
+        std::cerr << "** No runners" << std::endl;
+    }
+
+    std::cerr << "** Joining threads" << std::endl;
+    while(!mlThreads.empty()) {
+        mlThreads.front().join();
+        mlThreads.pop_front();
+    }
+    std::cerr << "** All joined" << std::endl;
+}
+
+
+Executor::~Executor(void) {
+}
+
+
+void Executor::Worker(void) {
+    Task newTask;
+    bool haveTask;
+
+    haveTask = mTasks.GetTask(newTask);
+    while(haveTask || mtRunning) {
+        if(haveTask) {
+            newTask();
+        }
+        haveTask = mTasks.GetTask(newTask);
+    }
+    std::cerr << "** Worker done" << std::endl;
+}
 

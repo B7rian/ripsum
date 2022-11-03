@@ -34,6 +34,9 @@ public:
     // to be gotten, otherwise returns false
     bool GetTask(Task& aT);
 
+    // Empty returns true if there are no tasks in the list
+    bool Empty(void);
+
 private:
     std::vector<Task> mvTasks;  // Tasks to be run
     std::mutex mTaskListMutex;  // Mutex for task vector

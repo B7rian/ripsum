@@ -9,6 +9,7 @@ RIPSUM=$PWD/../src/ripsum
 TEST_DATA=$PWD
 #TEST_DATA=/run/media/bwh/Samsung_T5/White
 #TEST_DATA=/media/bwh/0913363e-4c27-4171-ab30-45bb5301d496/home/bwh/Pictures
+TEST_DATA=/home/bwh/Pictures
 
 # On MINGW64 sha256sum outputs unix-style newlines, so when we're on MINGS64 use
 # unix2dos to convert the newlines.  On Linux, we don't need unix2dos so just use
@@ -30,9 +31,10 @@ generate_and_compare() {
 	RET2=$?
 
 	diff ref_gen.out ripsum_gen.out
-	diff ref_gen.err ripsum_gen.err
+	#diff ref_gen.err ripsum_gen.err
 	if [ $RET1 != $RET2 ]; then
 		echo RET1=$RET1 RET2=$RET2
+        exit 1
 	fi
 }
 
@@ -47,12 +49,12 @@ check_and_compare() {
 	$RIPSUM $1 2> ripsum_check.err | sort -k 2 > ripsum_check.out
 	RET2=$?
 
-	diff ref_check.out ripsum_check.out
-	diff ref_check.err ripsum_check.err
-	if [ $RET1 != $RET2 ]; then
-		echo RET1=$RET1 RET2=$RET2
-	fi
-
+	#diff ref_check.out ripsum_check.out
+	#diff ref_check.err ripsum_check.err
+	#if [ $RET1 != $RET2 ]; then
+#		echo RET1=$RET1 RET2=$RET2
+#		exit 1
+#	fi
 }
 
 set -v -x 

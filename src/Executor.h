@@ -18,8 +18,8 @@
 
 #include <filesystem>
 #include <list>
-#include <functional>
-#include <mutex>
+#include <thread>
+#include <atomic>
 
 #include "TaskState.h"
 #include "UserInput.h"
@@ -28,13 +28,20 @@
 
 class Executor {
 public:
-    Executor(void) { }
+    Executor(void);
+    ~Executor(void);
     void ComputeChecksums(const std::filesystem::path& aP,
                           UserInput& aConfig,
                           RipsumOutput *apOut);
-    ~Executor(void) { }
+    void ActivityStarted(void) { mtRunning++; }
+    void AddTask(const Task& aT) { mTasks.AddTask(aT); }
+    void ActivityDone(void) { mtRunning--; }
+    void Wait(void);
 
 private:
-    TaskList mTasks;
+    void Worker(void);                  // Worker thread function
+    TaskList mTasks;                    // Lists of tasks to be run
+    std::list<std::thread> mlThreads;   // The worker threads
+    std::atomic<uint32_t> mtRunning;
 };
 
