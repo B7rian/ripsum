@@ -15,6 +15,8 @@
 //
 
 #include <iostream>
+#include <chrono>
+#include <thread>
 #include "TaskState.h"
 
 void TaskState::Init(void) {
@@ -22,9 +24,13 @@ void TaskState::Init(void) {
 }
 
 void TaskState::Finish(void) {
+    using namespace std::chrono_literals;
+
     while(BytesRead() != BytesHashed()) {
-        std::cerr << "Waiting for other tasks to complete" << std::endl;
+        //std::cerr << "Waiting for other tasks to complete" << std::endl;
+        std::this_thread::sleep_for(25ms);
     }
+
     FinishHash();
 }
 

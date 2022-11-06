@@ -24,19 +24,23 @@
 
 //
 // File is the file-related state that gets passed between the tasks inside
-// the scheduler.  
+// the scheduler.
 //
 
 class File {
 public:
     File(const std::filesystem::path& aP, uint32_t aBlockSize);
     ~File(void);
- 
+
     // GetPath is a simple accessor to get the file path
-    auto GetPath(void) { return mPath; }
- 
+    auto GetPath(void) {
+        return mPath;
+    }
+
     // FileOk returns true if we should keep reading
-    bool FileOk(void) { return mOk; }
+    bool FileOk(void) {
+        return mOk;
+    }
 
     // ReadBytes reads some bytes from the file into an internal buffer
     // Returns the number of bytes read
@@ -51,7 +55,9 @@ public:
     void CleanupBytes(uint8_t* apBytes);
 
     // BytesRead returns the number of bytes read
-    uint32_t BytesRead(void) { return mBytesRead; }
+    uint32_t BytesRead(void) {
+        return mBytesRead;
+    }
 
 private:
     struct Buffer {                 // An entry in the buffer queue

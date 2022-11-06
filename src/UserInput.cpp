@@ -26,7 +26,7 @@
 #include "ChecksumLine.h"
 
 void UserInput::ReadChecksumsFromFile(std::filesystem::path aP,
-              std::function<void(std::filesystem::path, std::string)> aFileCb)
+                                      std::function<void(std::filesystem::path, std::string)> aFileCb)
 {
     std::ifstream sin;
     std::string line;

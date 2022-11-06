@@ -24,14 +24,20 @@ public:
     void InitHash(void);
     void AddBytesToHash2(uint8_t *aBytes, uint32_t aCount);
     void FinishHash(void);
-    const std::string& GetChecksum(void) { return mChecksum; }
+    const std::string& GetChecksum(void) {
+        return mChecksum;
+    }
     void SetExpectedChecksum(const std::string& aChecksum) {
         mExpectedChecksum = aChecksum;
     }
-    bool ChecksumIsOk(void) { return mChecksum == mExpectedChecksum; }
+    bool ChecksumIsOk(void) {
+        return mChecksum == mExpectedChecksum;
+    }
 
     // BytesHashed returns the total number of bytes hashed
-    uint32_t BytesHashed(void) { return mBytesHashed; }
+    uint32_t BytesHashed(void) {
+        return mBytesHashed;
+    }
 
 private:
     EVP_MD_CTX *mCtx;

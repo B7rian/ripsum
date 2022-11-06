@@ -33,9 +33,15 @@ public:
     void ComputeChecksums(const std::filesystem::path& aP,
                           UserInput& aConfig,
                           RipsumOutput *apOut);
-    void ActivityStarted(void) { mtRunning++; }
-    void AddTask(const Task& aT) { mTasks.AddTask(aT); }
-    void ActivityDone(void) { mtRunning--; }
+    void ActivityStarted(void) {
+        mtRunning++;
+    }
+    void AddTask(const Task& aT) {
+        mTasks.AddTask(aT);
+    }
+    void ActivityDone(void) {
+        mtRunning--;
+    }
     void Wait(void);
 
 private:

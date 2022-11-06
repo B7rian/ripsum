@@ -17,7 +17,7 @@
 #include <iostream>
 #include "File.h"
 
-File::File(const std::filesystem::path& aP, uint32_t aBlockSize) 
+File::File(const std::filesystem::path& aP, uint32_t aBlockSize)
     : mPath{aP}, mBlockSize{aBlockSize}, mBytesRead{0}
 {
     mSin.open(mPath, std::ios::binary);
@@ -32,7 +32,6 @@ uint32_t File::ReadBytes(void) {
     {
         std::lock_guard<std::mutex> lock(mStreamMutex);
         if(!mSin.good() || mSin.eof()) {
-            std::cerr << "EOS" << std::endl;
             mOk = false;
             delete[] b.pBytes;
             return 0;
@@ -41,7 +40,6 @@ uint32_t File::ReadBytes(void) {
         mSin.read((char *)b.pBytes, mBlockSize);
         b.mCount = mSin.gcount();
         mBytesRead += b.mCount;
-        std::cerr << "R" << std::dec << b.mCount << "@" << std::hex << (uint64_t)b.pBytes << std::endl;
     }
 
     if(b.mCount == 0) {
@@ -60,19 +58,16 @@ uint32_t File::ReadBytes(void) {
 uint32_t File::GetBytes(uint8_t* &apBytes) {
     std::lock_guard<std::mutex> lock(mBuffersMutex);
     if(mlBuffers.empty()) {
-        std::cerr << "No buffers" << std::endl;
         return 0;
     }
     Buffer b = mlBuffers.front();
     mlBuffers.pop_front();
     apBytes = b.pBytes;
-    std::cerr << "G" << std::dec << b.mCount << "@" << std::hex << (uint64_t)b.pBytes << std::endl;
     return b.mCount;
 }
 
 
 void File::CleanupBytes(uint8_t *pBytes) {
-    std::cerr << "F" << "@" << std::hex << (uint64_t)pBytes << std::endl;
     delete[] pBytes;
 }
 

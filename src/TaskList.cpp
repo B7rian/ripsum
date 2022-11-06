@@ -19,18 +19,20 @@
 
 // AddTask is thread safe.  Put stuff at the back of the vector rather
 // than the front so it doesn't have to move everything done.  This will
-// trigger allocations when the vector needs to expand but they'll be 
+// trigger allocations when the vector needs to expand but they'll be
 // less often than a std:list or something like it would need to allocate.
 void TaskList::AddTask(const Task& aT) {
     std::lock_guard<std::mutex> lock(mTaskListMutex);
     mvTasks.push_back(aT);
 }
 
-// GetTask is also thread safe. 
+// GetTask is also thread safe.
 bool TaskList::GetTask(Task& aT) {
     std::lock_guard<std::mutex> lock(mTaskListMutex);
     if(mvTasks.empty()) {
-        aT = [](){ abort(); };
+        aT = []() {
+            abort();
+        };
         return false;
     }
 

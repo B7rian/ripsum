@@ -22,24 +22,27 @@
 #include "FileSystem.h"
 
 
+//
+// ComputeChecksums
+//
+
 namespace {
 
-Task MakeChecksumFinishLambda(TaskState *apState, 
+Task MakeChecksumFinishLambda(TaskState *apState,
                               Executor *apEx,
-                              RipsumOutput *apOut) 
+                              RipsumOutput *apOut)
 {
     return [apState, apEx, apOut](void) {
         apState->Finish();
-        std::cerr << "Finish " << apState->GetPath() << std::endl;
         apOut->NotifyChecksumReady(apState->GetPath(), apState->GetChecksum());
         delete apState;
         apEx->ActivityDone();
     };
 }
 
-Task MakeReadAndHashLambda(TaskState *apState, 
+Task MakeReadAndHashLambda(TaskState *apState,
                            Executor *apEx,
-                           RipsumOutput *apOut) 
+                           RipsumOutput *apOut)
 {
     return [apState, apEx, apOut](void) {
         apState->ReadBytes();
@@ -56,10 +59,9 @@ Task MakeReadAndHashLambda(TaskState *apState,
 Task MakeComputeChecksumLambda(std::filesystem::path aP,
                                uint32_t aBlockSize,
                                Executor *apEx,
-                               RipsumOutput *apOut) 
+                               RipsumOutput *apOut)
 {
     return [aP, aBlockSize, apEx, apOut](void) {
-        std::cerr << "Init " << aP << std::endl;
         TaskState *pState = new TaskState(aP, aBlockSize);
         pState->Init();
         apEx->AddTask(MakeReadAndHashLambda(pState, apEx, apOut));
@@ -68,21 +70,16 @@ Task MakeComputeChecksumLambda(std::filesystem::path aP,
 
 }
 
-
-//
-// ComputeChecksums
-//
-
 void Executor::ComputeChecksums(const std::filesystem::path& aPath,
                                 UserInput& aConfig,
-                                RipsumOutput *apOut) 
+                                RipsumOutput *apOut)
 {
     FileSystem::FindFiles(aPath,
-        [&](std::filesystem::path aP) {
-            ActivityStarted();  // Matching ActivityDone() is in the final Task
-            AddTask(MakeComputeChecksumLambda(aP, aConfig.mBlockSize, 
-                                              this, apOut));
-        });
+    [&](std::filesystem::path aP) {
+        ActivityStarted();  // Matching ActivityDone() is in the final Task
+        AddTask(MakeComputeChecksumLambda(aP, aConfig.mBlockSize,
+                                          this, apOut));
+    });
 }
 
 
@@ -93,6 +90,8 @@ Executor::Executor(void): mtRunning{0} {
     ActivityStarted();
     mlThreads.push_front(std::thread(&Executor::Worker, this));
     mlThreads.push_front(std::thread(&Executor::Worker, this));
+    mlThreads.push_front(std::thread(&Executor::Worker, this));
+    mlThreads.push_front(std::thread(&Executor::Worker, this));
 }
 
 
@@ -100,21 +99,22 @@ Executor::Executor(void): mtRunning{0} {
 // we assume it is also done doing stuff and call ActivityDone() to signal
 // the worker threads that it's done.
 void Executor::Wait(void) {
-    std::cerr << "** Wait" << std::endl;
+    using namespace std::chrono_literals;
+
     ActivityDone();
     while(mtRunning > 0 || !mTasks.Empty()) {
-        while(!mTasks.Empty()) {}
-        std::cerr << "** Tasks empty" << std::endl;
-        while(mtRunning > 0) {}
-        std::cerr << "** No runners" << std::endl;
+        while(!mTasks.Empty()) {
+            std::this_thread::sleep_for(25ms);
+        }
+        while(mtRunning > 0) {
+            std::this_thread::sleep_for(25ms);
+        }
     }
 
-    std::cerr << "** Joining threads" << std::endl;
     while(!mlThreads.empty()) {
         mlThreads.front().join();
         mlThreads.pop_front();
     }
-    std::cerr << "** All joined" << std::endl;
 }
 
 
@@ -133,6 +133,5 @@ void Executor::Worker(void) {
         }
         haveTask = mTasks.GetTask(newTask);
     }
-    std::cerr << "** Worker done" << std::endl;
 }
 
