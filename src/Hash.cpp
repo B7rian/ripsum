@@ -30,11 +30,13 @@ void Hash::InitHash(void) {
     mCtx = EVP_MD_CTX_new();
     mMd = EVP_sha256();
     EVP_DigestInit_ex(mCtx, mMd, NULL);
+    mBytesHashed = 0;
 }
 
 void Hash::AddBytesToHash2(uint8_t *aBytes, uint32_t aCount) {
     std::lock_guard<std::mutex> lock(mDigestMutex);
     EVP_DigestUpdate(mCtx, aBytes, aCount);
+    mBytesHashed += aCount;
 }
 
 void Hash::FinishHash(void) {

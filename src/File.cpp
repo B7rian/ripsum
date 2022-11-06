@@ -18,46 +18,71 @@
 #include "File.h"
 
 File::File(const std::filesystem::path& aP, uint32_t aBlockSize) 
-    : mPath{aP}, mBlockSize{aBlockSize}
+    : mPath{aP}, mBlockSize{aBlockSize}, mBytesRead{0}
 {
     mSin.open(mPath, std::ios::binary);
 }
 
 
 uint32_t File::ReadBytes(void) {
-    if(!mSin.good() || mSin.eof()) {
+    Buffer b;
+    b.pBytes = new uint8_t[mBlockSize];
+    b.mCount = 0;
+
+    {
+        std::lock_guard<std::mutex> lock(mStreamMutex);
+        if(!mSin.good() || mSin.eof()) {
+            std::cerr << "EOS" << std::endl;
+            mOk = false;
+            delete[] b.pBytes;
+            return 0;
+        }
+
+        mSin.read((char *)b.pBytes, mBlockSize);
+        b.mCount = mSin.gcount();
+        mBytesRead += b.mCount;
+        std::cerr << "R" << std::dec << b.mCount << "@" << std::hex << (uint64_t)b.pBytes << std::endl;
+    }
+
+    if(b.mCount == 0) {
         mOk = false;
+        delete[] b.pBytes;
         return 0;
     }
 
-    Buffer b;
-    b.pBytes = new uint8_t[mBlockSize];
-    mSin.read((char *)b.pBytes, mBlockSize);
-    b.mCount = mSin.gcount();
-
-    if(b.mCount > 0) {
-        mOk = true;
-        mlBuffers.push_back(b); // Makes a copy
-    }
-    else {
-        mOk = false;
-        delete[] b.pBytes;
-    }
-
+    mOk = true;
+    std::lock_guard<std::mutex> lock(mBuffersMutex);
+    mlBuffers.push_back(b); // Makes a copy
     return b.mCount;
 }
 
 
 uint32_t File::GetBytes(uint8_t* &apBytes) {
+    std::lock_guard<std::mutex> lock(mBuffersMutex);
+    if(mlBuffers.empty()) {
+        std::cerr << "No buffers" << std::endl;
+        return 0;
+    }
     Buffer b = mlBuffers.front();
+    mlBuffers.pop_front();
     apBytes = b.pBytes;
+    std::cerr << "G" << std::dec << b.mCount << "@" << std::hex << (uint64_t)b.pBytes << std::endl;
     return b.mCount;
 }
 
 
-void File::CleanupBytes(void) {
-    Buffer b = mlBuffers.front();
-    delete[] b.pBytes;
-    mlBuffers.pop_front();
+void File::CleanupBytes(uint8_t *pBytes) {
+    std::cerr << "F" << "@" << std::hex << (uint64_t)pBytes << std::endl;
+    delete[] pBytes;
+}
+
+
+File::~File(void) {
+    mSin.close();
+
+    uint8_t *pBytes;
+    while(GetBytes(pBytes)) {
+        CleanupBytes(pBytes);
+    }
 }
 

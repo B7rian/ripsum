@@ -30,6 +30,7 @@
 class File {
 public:
     File(const std::filesystem::path& aP, uint32_t aBlockSize);
+    ~File(void);
  
     // GetPath is a simple accessor to get the file path
     auto GetPath(void) { return mPath; }
@@ -46,11 +47,14 @@ public:
     // C-ish and can be made safer.
     uint32_t GetBytes(uint8_t* &apBytes);
 
-    // CleanupBytes cleans up the buffer at the head of the queue
-    void CleanupBytes(void);
+    // CleanupBytes cleans up the buffer given buffer
+    void CleanupBytes(uint8_t* apBytes);
+
+    // BytesRead returns the number of bytes read
+    uint32_t BytesRead(void) { return mBytesRead; }
 
 private:
-    struct Buffer {
+    struct Buffer {                 // An entry in the buffer queue
         uint8_t *pBytes;
         uint32_t mCount;
     };
@@ -58,6 +62,7 @@ private:
     std::filesystem::path mPath;	// Path to file
     uint32_t mBlockSize;            // Size of a single block of data
     bool mOk;						// No errors and not EOF
+    uint32_t mBytesRead;            // Number of bytes read
 
     std::ifstream mSin;				// Input stream
     std::mutex mStreamMutex;        // Mutex for stream access

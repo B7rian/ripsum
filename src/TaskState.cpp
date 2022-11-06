@@ -22,17 +22,22 @@ void TaskState::Init(void) {
 }
 
 void TaskState::Finish(void) {
+    while(BytesRead() != BytesHashed()) {
+        std::cerr << "Waiting for other tasks to complete" << std::endl;
+    }
     FinishHash();
 }
 
 void TaskState::AddBytesToHash(void) {
     uint8_t *pBuf;
     uint32_t n;
+
+    std::lock_guard<std::mutex> lock(mGetAndHashMutex);
     n = GetBytes(pBuf);
     //std::cerr << "*" << n << std::endl;
     if(n > 0) {
         AddBytesToHash2(pBuf, n);
-        CleanupBytes();
+        CleanupBytes(pBuf);
     }
 }
 

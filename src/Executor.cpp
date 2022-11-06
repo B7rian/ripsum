@@ -92,7 +92,7 @@ void Executor::ComputeChecksums(const std::filesystem::path& aPath,
 Executor::Executor(void): mtRunning{0} {
     ActivityStarted();
     mlThreads.push_front(std::thread(&Executor::Worker, this));
-    //mlThreads.push_front(std::thread(&Executor::Worker, this));
+    mlThreads.push_front(std::thread(&Executor::Worker, this));
 }
 
 
