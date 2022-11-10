@@ -30,10 +30,14 @@ class Executor {
 public:
     Executor(void);
 
+	// ComputeChecksums computes checksums for files at/under the
+	// given path and calls into the output object with the result
     void ComputeChecksums(const std::filesystem::path& aP,
                           UserInput& aConfig,
                           RipsumOutput *apOut);
 
+	// CheckChecksums checkes the checksums in the given file 
+	// and calls into the output object with the result
     void CheckChecksums(const std::filesystem::path& aChecksumFile,
                         UserInput& aConfig,
                         RipsumOutput *apOut);
@@ -54,6 +58,8 @@ public:
         mtRunning--;
     }
 
+	// Wait waits for all queues to empty and Worker threads to finish 
+	// their current tasks (via join) 
     void Wait(void);
 
 private:
