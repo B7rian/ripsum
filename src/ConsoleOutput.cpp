@@ -32,12 +32,14 @@
 //
 
 void ConsoleOutput::NotifyGoodChecksum(const std::filesystem::path& aPath) {
+	std::lock_guard<std::mutex> lock(mOutputMutex);
     std::cout << aPath.generic_u8string();
     std::cout << ": OK";
     std::cout << '\n';
 }
 
 void ConsoleOutput::NotifyBadChecksum(const std::filesystem::path& aPath) {
+	std::lock_guard<std::mutex> lock(mOutputMutex);
     std::cout << aPath.generic_u8string();
     std::cout << ": FAILED";
     std::cout << '\n';
@@ -47,6 +49,7 @@ void ConsoleOutput::NotifyBadChecksum(const std::filesystem::path& aPath) {
 void ConsoleOutput::NotifyChecksumReady(const std::filesystem::path& aPath,
                                         const std::string& aChecksum)
 {
+	std::lock_guard<std::mutex> lock(mOutputMutex);
     std::cout << aChecksum
 #if defined(__MINGW64__ ) || defined(__MINGW32__)
               << " *"

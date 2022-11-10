@@ -9,7 +9,7 @@ RIPSUM=$PWD/../src/ripsum
 TEST_DATA=$PWD
 #TEST_DATA=/run/media/bwh/Samsung_T5/White
 #TEST_DATA=/media/bwh/0913363e-4c27-4171-ab30-45bb5301d496/home/bwh/Pictures
-TEST_DATA=/home/bwh/Pictures
+#TEST_DATA=/home/bwh/Pictures
 
 # On MINGW64 sha256sum outputs unix-style newlines, so when we're on MINGS64 use
 # unix2dos to convert the newlines.  On Linux, we don't need unix2dos so just use
@@ -25,13 +25,13 @@ fi
 # ripsum and compare the output (stderr, stdout, and return value)
 #
 generate_and_compare() {
-	find "$1" -type f -exec sha256sum $2 {} + 2> ref_gen.err | sort -k 2 | $UNIX2DOS > ref_gen.out
+	find "$1" -type f | xargs -d '\n' -n 1 -P 4 sha256sum $2 2> ref_gen.err | sort -k 2 | $UNIX2DOS > ref_gen.out
 	RET1=$?
 	$RIPSUM "$1" $2 2> ripsum_gen.err | sort -k 2 > ripsum_gen.out
 	RET2=$?
 
 	diff ref_gen.out ripsum_gen.out
-	#diff ref_gen.err ripsum_gen.err
+	diff ref_gen.err ripsum_gen.err
 	if [ $RET1 != $RET2 ]; then
 		echo RET1=$RET1 RET2=$RET2
         exit 1
@@ -49,12 +49,12 @@ check_and_compare() {
 	$RIPSUM $1 2> ripsum_check.err | sort -k 2 > ripsum_check.out
 	RET2=$?
 
-	#diff ref_check.out ripsum_check.out
-	#diff ref_check.err ripsum_check.err
-	#if [ $RET1 != $RET2 ]; then
-#		echo RET1=$RET1 RET2=$RET2
-#		exit 1
-#	fi
+	diff ref_check.out ripsum_check.out
+	diff ref_check.err ripsum_check.err
+	if [ $RET1 != $RET2 ]; then
+		echo RET1=$RET1 RET2=$RET2
+		exit 1
+	fi
 }
 
 set -v -x 

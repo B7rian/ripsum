@@ -26,7 +26,7 @@
 // ComputeChecksums
 //
 
-namespace {
+namespace compute {
 
 Task MakeChecksumFinishLambda(TaskState *apState,
                               Executor *apEx,
@@ -72,6 +72,63 @@ Task MakeComputeChecksumLambda(std::filesystem::path aP,
 
 }
 
+
+namespace check {
+
+Task MakeChecksumFinishLambda(TaskState *apState,
+                              Executor *apEx,
+                              RipsumOutput *apOut)
+{
+    return [apState, apEx, apOut](uint32_t aThreadNum) {
+        apState->Finish();
+
+		if(apState->ChecksumIsOk()) {
+			apOut->NotifyGoodChecksum(apState->GetPath());
+		}
+		else {
+			apOut->NotifyBadChecksum(apState->GetPath());
+		}
+
+        delete apState;
+        apEx->ActivityDone();
+    };
+}
+
+Task MakeReadAndHashLambda(TaskState *apState,
+                           Executor *apEx,
+                           RipsumOutput *apOut)
+{
+    return [apState, apEx, apOut](uint32_t aThreadNum) {
+        apState->ReadBytes();
+        if(apState->FileOk() == true) {
+            apEx->AddTask(aThreadNum,
+                          MakeReadAndHashLambda(apState, apEx, apOut));
+            apState->AddBytesToHash();
+        }
+        else {
+            apEx->AddTask(aThreadNum,
+                          MakeChecksumFinishLambda(apState, apEx, apOut));
+        }
+    };
+}
+
+Task MakeCheckChecksumLambda(std::filesystem::path aP,
+		                     std::string aChecksum,
+                             uint32_t aBlockSize,
+                             Executor *apEx,
+                             RipsumOutput *apOut)
+{
+    return [aP, aChecksum, aBlockSize, apEx, apOut](uint32_t aThreadNum) {
+        TaskState *pState = new TaskState(aP, aBlockSize);
+        pState->Init();
+		pState->SetExpectedChecksum(aChecksum);
+        apEx->AddTask(aThreadNum, MakeReadAndHashLambda(pState, apEx, apOut));
+    };
+}
+
+}
+
+
 void Executor::ComputeChecksums(const std::filesystem::path& aPath,
                                 UserInput& aConfig,
                                 RipsumOutput *apOut)
@@ -79,8 +136,22 @@ void Executor::ComputeChecksums(const std::filesystem::path& aPath,
     FileSystem::FindFiles(aPath,
     [&](std::filesystem::path aP) {
         ActivityStarted();  // Matching ActivityDone() is in the final Task
-        AddTask(MakeComputeChecksumLambda(aP, aConfig.mBlockSize,
-                                          this, apOut));
+        AddTask(compute::MakeComputeChecksumLambda(aP, aConfig.mBlockSize,
+                                                   this, apOut));
+    });
+}
+
+
+void Executor::CheckChecksums(const std::filesystem::path& aChecksumFile,
+                              UserInput& aUserIn,
+                              RipsumOutput *apOut)
+{
+    aUserIn.ReadChecksumsFromFile(aChecksumFile,
+    [&](std::filesystem::path aP, std::string aChecksum) {
+        ActivityStarted();  // Matching ActivityDone() is in the final Task
+        AddTask(check::MakeCheckChecksumLambda(aP, aChecksum, 
+					                    aUserIn.mBlockSize,
+                                        this, apOut));
     });
 }
 
@@ -124,11 +195,6 @@ void Executor::Wait(void) {
         mlThreads.pop_front();
     }
 }
-
-
-Executor::~Executor(void) {
-}
-
 
 void Executor::Worker(uint32_t aThreadNum) {
     Task newTask;

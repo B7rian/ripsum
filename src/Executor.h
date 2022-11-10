@@ -29,10 +29,14 @@
 class Executor {
 public:
     Executor(void);
-    ~Executor(void);
+
     void ComputeChecksums(const std::filesystem::path& aP,
                           UserInput& aConfig,
                           RipsumOutput *apOut);
+
+    void CheckChecksums(const std::filesystem::path& aChecksumFile,
+                        UserInput& aConfig,
+                        RipsumOutput *apOut);
 
     void ActivityStarted(void) {
         mtRunning++;

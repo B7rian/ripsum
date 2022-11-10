@@ -16,6 +16,9 @@
 
 #pragma once
 
+#include <mutex>
+#include <atomic>
+
 #include "RipsumOutput.h"
 
 class ConsoleOutput: public RipsumOutput {
@@ -29,7 +32,8 @@ public:
     void Done(void);
 
 private:
-    int mBadSums = 0;
-    int mBadLines = 0;
+	std::mutex mOutputMutex;
+	std::atomic<uint32_t> mBadSums {0};
+	std::atomic<uint32_t> mBadLines {0};
 };
 

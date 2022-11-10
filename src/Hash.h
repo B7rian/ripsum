@@ -15,8 +15,10 @@
 //
 
 #pragma once
+
 #include <cstdint>
 #include <string>
+#include <iostream>
 #include <openssl/evp.h>
 
 class Hash {
@@ -31,6 +33,8 @@ public:
         mExpectedChecksum = aChecksum;
     }
     bool ChecksumIsOk(void) {
+		//std::cerr << "E" << aChecksum << std::endl;
+		//std::cerr << "A" << mChecksum << std::endl;
         return mChecksum == mExpectedChecksum;
     }
 
