@@ -9,7 +9,7 @@ RIPSUM=$PWD/../src/ripsum
 TEST_DATA=$PWD
 #TEST_DATA=/run/media/bwh/Samsung_T5/White
 #TEST_DATA=/media/bwh/0913363e-4c27-4171-ab30-45bb5301d496/home/bwh/Pictures
-#TEST_DATA=/home/bwh/Pictures
+#TEST_DATA=/home/bwh/Downloads
 
 # On MINGW64 sha256sum outputs unix-style newlines, so when we're on MINGS64 use
 # unix2dos to convert the newlines.  On Linux, we don't need unix2dos so just use
@@ -23,6 +23,9 @@ fi
 #
 # generate_and_compare: Generate checksums using both find+sha256sum and 
 # ripsum and compare the output (stderr, stdout, and return value)
+# 
+# $1 is the directory arg
+# $2 is optional flags to sha256sum and ripsum
 #
 generate_and_compare() {
 	find "$1" -type f | xargs -d '\n' -n 1 -P 4 sha256sum $2 2> ref_gen.err | sort -k 2 | $UNIX2DOS > ref_gen.out
