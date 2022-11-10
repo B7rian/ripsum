@@ -33,21 +33,30 @@ public:
     void ComputeChecksums(const std::filesystem::path& aP,
                           UserInput& aConfig,
                           RipsumOutput *apOut);
+
     void ActivityStarted(void) {
         mtRunning++;
     }
+
     void AddTask(const Task& aT) {
-        mTasks.AddTask(aT);
+        mAnyoneTasks.AddTask(aT);
     }
+
+    void AddTask(const uint32_t aThreadNum, const Task& aT) {
+        mvThreadTasks[aThreadNum]->AddTask(aT);
+    }
+
     void ActivityDone(void) {
         mtRunning--;
     }
+
     void Wait(void);
 
 private:
-    void Worker(void);                  // Worker thread function
-    TaskList mTasks;                    // Lists of tasks to be run
-    std::list<std::thread> mlThreads;   // The worker threads
-    std::atomic<uint32_t> mtRunning;
+    void Worker(uint32_t aThreadNum);     // Worker thread function
+    TaskList mAnyoneTasks;                // Lists of tasks any thread can run
+    std::vector<TaskList*> mvThreadTasks; // Tasks for each thread
+    std::list<std::thread> mlThreads;     // The worker threads
+    std::atomic<uint32_t> mtRunning;	  // Number of running activities
 };
 

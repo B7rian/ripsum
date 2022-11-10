@@ -30,7 +30,7 @@ void TaskList::AddTask(const Task& aT) {
 bool TaskList::GetTask(Task& aT) {
     std::lock_guard<std::mutex> lock(mTaskListMutex);
     if(mvTasks.empty()) {
-        aT = []() {
+        aT = [](uint32_t unused) {
             abort();
         };
         return false;

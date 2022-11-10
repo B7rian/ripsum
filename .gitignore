@@ -3,3 +3,4 @@ ripsum
 *.err
 *.out
 build
+*.orig

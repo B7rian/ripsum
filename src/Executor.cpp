@@ -32,7 +32,7 @@ Task MakeChecksumFinishLambda(TaskState *apState,
                               Executor *apEx,
                               RipsumOutput *apOut)
 {
-    return [apState, apEx, apOut](void) {
+    return [apState, apEx, apOut](uint32_t aThreadNum) {
         apState->Finish();
         apOut->NotifyChecksumReady(apState->GetPath(), apState->GetChecksum());
         delete apState;
@@ -44,14 +44,16 @@ Task MakeReadAndHashLambda(TaskState *apState,
                            Executor *apEx,
                            RipsumOutput *apOut)
 {
-    return [apState, apEx, apOut](void) {
+    return [apState, apEx, apOut](uint32_t aThreadNum) {
         apState->ReadBytes();
         if(apState->FileOk() == true) {
-            apEx->AddTask(MakeReadAndHashLambda(apState, apEx, apOut));
+            apEx->AddTask(aThreadNum,
+                          MakeReadAndHashLambda(apState, apEx, apOut));
             apState->AddBytesToHash();
         }
         else {
-            apEx->AddTask(MakeChecksumFinishLambda(apState, apEx, apOut));
+            apEx->AddTask(aThreadNum,
+                          MakeChecksumFinishLambda(apState, apEx, apOut));
         }
     };
 }
@@ -61,10 +63,10 @@ Task MakeComputeChecksumLambda(std::filesystem::path aP,
                                Executor *apEx,
                                RipsumOutput *apOut)
 {
-    return [aP, aBlockSize, apEx, apOut](void) {
+    return [aP, aBlockSize, apEx, apOut](uint32_t aThreadNum) {
         TaskState *pState = new TaskState(aP, aBlockSize);
         pState->Init();
-        apEx->AddTask(MakeReadAndHashLambda(pState, apEx, apOut));
+        apEx->AddTask(aThreadNum, MakeReadAndHashLambda(pState, apEx, apOut));
     };
 }
 
@@ -88,10 +90,14 @@ void Executor::ComputeChecksums(const std::filesystem::path& aPath,
 // that we don't have anything else to do
 Executor::Executor(void): mtRunning{0} {
     ActivityStarted();
-    mlThreads.push_front(std::thread(&Executor::Worker, this));
-    mlThreads.push_front(std::thread(&Executor::Worker, this));
-    mlThreads.push_front(std::thread(&Executor::Worker, this));
-    mlThreads.push_front(std::thread(&Executor::Worker, this));
+    // Create per-thread TaskLists 1st so vector can reallocate internally
+    // without messing up running threads
+    for(int i = 0; i < 4; i++) {
+        mvThreadTasks.push_back(new TaskList);
+    }
+    for(int i = 0; i < 4; i++) {
+        mlThreads.push_front(std::thread(&Executor::Worker, this, i));
+    }
 }
 
 
@@ -102,8 +108,10 @@ void Executor::Wait(void) {
     using namespace std::chrono_literals;
 
     ActivityDone();
-    while(mtRunning > 0 || !mTasks.Empty()) {
-        while(!mTasks.Empty()) {
+    while(mtRunning > 0 || !mAnyoneTasks.Empty()) {
+        // Make tasklists first b/c vector will realocate and move
+        // stuff and cause segfaults
+        while(!mAnyoneTasks.Empty()) {
             std::this_thread::sleep_for(25ms);
         }
         while(mtRunning > 0) {
@@ -122,16 +130,24 @@ Executor::~Executor(void) {
 }
 
 
-void Executor::Worker(void) {
+void Executor::Worker(uint32_t aThreadNum) {
     Task newTask;
     bool haveTask;
 
-    haveTask = mTasks.GetTask(newTask);
+    haveTask = mvThreadTasks[aThreadNum]->GetTask(newTask);
+    if(!haveTask) {
+        haveTask = mAnyoneTasks.GetTask(newTask);
+    }
+
     while(haveTask || mtRunning) {
         if(haveTask) {
-            newTask();
+            newTask(aThreadNum);
         }
-        haveTask = mTasks.GetTask(newTask);
+
+        haveTask = mvThreadTasks[aThreadNum]->GetTask(newTask);
+        if(!haveTask) {
+            haveTask = mAnyoneTasks.GetTask(newTask);
+        }
     }
 }
 

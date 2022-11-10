@@ -21,7 +21,7 @@
 #include <vector>
 
 // Shorthand for a Task.  Tasks have to capture everything they need to run
-using Task = std::function<void(void)>;
+using Task = std::function<void(uint32_t)>;
 
 
 // A TaskList is a collection of tasks that are ready to be run
