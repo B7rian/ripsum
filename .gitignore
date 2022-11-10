@@ -4,3 +4,4 @@ ripsum
 *.out
 build
 *.orig
+ripsum-*
