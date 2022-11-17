@@ -69,7 +69,7 @@ void UserInput::ParseCommandline(int argc, char **argv) {
     };
 
     do {
-        c = getopt_long(argc, argv, "c", long_options, &option_index);
+        c = getopt_long(argc, argv, "cs:", long_options, &option_index);
         switch(c) {
         case -1:
             break; // -1 means no option found
@@ -82,6 +82,9 @@ void UserInput::ParseCommandline(int argc, char **argv) {
 //			case 't': mTextFlag = 1; break;
 //			case 'z': mZeroFlag = 1; break;
 //			case 'w': mWarnFlag = 1; break;
+        case 's':
+            mBlockSize = atoi(optarg);
+            break;
         default:
             mOut.UserNeedsHelp();
         }
@@ -90,10 +93,15 @@ void UserInput::ParseCommandline(int argc, char **argv) {
     if(mHelpFlag) {
         mOut.UserNeedsHelp();
     }
+    else if(mBlockSize < 0) {
+        std::cerr << "Block size (-s) needs to be greater than 0\n";
+        mOut.UserNeedsHelp();
+    }
     else {
         while(optind < argc) {
             mPaths.push_back(argv[optind++]);
         }
     }
+
 }
 

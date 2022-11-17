@@ -17,4 +17,5 @@
 cmake_minimum_required(VERSION 3.12)	# 3.12 supports OpenSSL::SSL
 project(ripsum)
 
-add_test(NAME TestName COMMAND ${CMAKE_SOURCE_DIR}/test/run_tests.sh)
+add_test(NAME SHA256SumCompare 
+         COMMAND ${CMAKE_SOURCE_DIR}/test/sha256sum_compare.sh)

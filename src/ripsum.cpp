@@ -14,38 +14,27 @@
 // limitations under the License.
 //
 
-#include "Scheduler.h"
+#include "Executor.h"
 #include "UserInput.h"
 #include "ConsoleOutput.h"
 
 int main(int argc, char **argv) {
     ConsoleOutput out;
     UserInput input(out);
-    Scheduler s;
+    Executor ex;
 
     input.ParseCommandline(argc, argv);
 
     for(auto& p: input.mPaths) {
-        s.AddPath(p);
+		if(input.mCheckFlag) {
+			ex.CheckChecksums(p, input, &out);
+		}
+		else {
+			ex.ComputeChecksums(p, input, &out);
+		}
     }
 
-    if(input.mCheckFlag) {
-        s.Run(input,
-        [&](TaskState *apState) {
-            if(apState->ChecksumIsOk()) {
-                out.NotifyGoodChecksum(apState);
-            }
-            else {
-                out.NotifyBadChecksum(apState);
-            }
-        });
-    }
-    else {
-        s.Run(input, [&](TaskState *apState) {
-            out.NotifyGenerateDone(apState);
-        });
-    }
-
+    ex.Wait();
     out.Done();
 
     return 0;

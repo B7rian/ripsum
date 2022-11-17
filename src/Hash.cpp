@@ -23,24 +23,30 @@
 #include <openssl/evp.h>
 #include "Hash.h"
 
-static std::mutex scary_global_mtx;
+static std::mutex sgEVPMutex;
 
 void Hash::InitHash(void) {
-    std::lock_guard<std::mutex> lock(scary_global_mtx);
+    std::lock_guard<std::mutex> lock(sgEVPMutex);
     mCtx = EVP_MD_CTX_new();
     mMd = EVP_sha256();
     EVP_DigestInit_ex(mCtx, mMd, NULL);
+    mBytesHashed = 0;
 }
 
 void Hash::AddBytesToHash2(uint8_t *aBytes, uint32_t aCount) {
+    std::lock_guard<std::mutex> lock(mDigestMutex);
     EVP_DigestUpdate(mCtx, aBytes, aCount);
+    mBytesHashed += aCount;
 }
 
 void Hash::FinishHash(void) {
-    EVP_DigestFinal_ex(mCtx, mOutDigest, &mDigestLen);
+    {
+        std::lock_guard<std::mutex> lock(mDigestMutex);
+        EVP_DigestFinal_ex(mCtx, mOutDigest, &mDigestLen);
+    }
 
     {
-        std::lock_guard<std::mutex> lock(scary_global_mtx);
+        std::lock_guard<std::mutex> lock(sgEVPMutex);
         EVP_MD_CTX_free(mCtx);
     }
 

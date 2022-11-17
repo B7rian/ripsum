@@ -17,64 +17,67 @@
 #include <iostream>
 #include "File.h"
 
-// InitBuffer initializes internal state and saves the pointer to the
-// next buffer for later
-void CBuffer::InitBuffer(CBuffer *apNextBuffer) {
-    mDataCount = 0;
-    mBytesRead = 0;
-    mpData = new uint8_t[FILE_BLOCK_SIZE];
-    mpNext = apNextBuffer;
-}
-
-// ReadBytes pulls some data from the file into the buffer.
-bool CBuffer::ReadBytes(std::ifstream& aSin) {
-    mDataCount = 0;
-    if(aSin.good() && !aSin.eof()) {
-        aSin.read((char *)mpData, FILE_BLOCK_SIZE);
-        mDataCount = aSin.gcount();
-        mBytesRead += aSin.gcount();
-        //std::cerr << "<" << mDataCount << '\n';
-    }
-    return (mDataCount > 0);
-}
-
-
-// InitFile opens the file and sets up the double buffering
-void File::InitFile(void) {
+File::File(const std::filesystem::path& aP, uint32_t aBlockSize)
+    : mPath{aP}, mBlockSize{aBlockSize}, mBytesRead{0}
+{
     mSin.open(mPath, std::ios::binary);
-    mPing.InitBuffer(&mPong);
-    mPong.InitBuffer(&mPing);
-    mpReadBuffer = &mPing;
-    mpFullBuffer = &mPing;
 }
 
-// FinishFile: Just close the file when we're done
-void File::FinishFile(void) {
-    mPing.FinishBuffer();
-    mPong.FinishBuffer();
+
+uint32_t File::ReadBytes(void) {
+    Buffer b;
+    b.pBytes = new uint8_t[mBlockSize];
+    b.mCount = 0;
+
+    {
+        std::lock_guard<std::mutex> lock(mStreamMutex);
+        if(!mSin.good() || mSin.eof()) {
+            mOk = false;
+            delete[] b.pBytes;
+            return 0;
+        }
+
+        mSin.read((char *)b.pBytes, mBlockSize);
+        b.mCount = mSin.gcount();
+        mBytesRead += b.mCount;
+    }
+
+    if(b.mCount == 0) {
+        mOk = false;
+        delete[] b.pBytes;
+        return 0;
+    }
+
+    mOk = true;
+    std::lock_guard<std::mutex> lock(mBuffersMutex);
+    mlBuffers.push_back(b); // Makes a copy
+    return b.mCount;
+}
+
+
+uint32_t File::GetBytes(uint8_t* &apBytes) {
+    std::lock_guard<std::mutex> lock(mBuffersMutex);
+    if(mlBuffers.empty()) {
+        return 0;
+    }
+    Buffer b = mlBuffers.front();
+    mlBuffers.pop_front();
+    apBytes = b.pBytes;
+    return b.mCount;
+}
+
+
+void File::CleanupBytes(uint8_t *pBytes) {
+    delete[] pBytes;
+}
+
+
+File::~File(void) {
     mSin.close();
+
+    uint8_t *pBytes;
+    while(GetBytes(pBytes)) {
+        CleanupBytes(pBytes);
+    }
 }
-
-
-// ReadBytes reads some bytes from the file into the current read buffer, then
-// swaps read buffers in preperation for the next read
-void File::ReadBytes(void) {
-    mOk = mpReadBuffer->ReadBytes(mSin);
-    mpReadBuffer = mpReadBuffer->GetNextBuffer();
-}
-
-// GetBytes provides the "full" buffer and bytes count, then swaps buffers
-// for the next GetBytes call
-uint32_t File::GetBytes(uint8_t* &aBytes) {
-    aBytes = mpFullBuffer->GetData();
-    uint32_t count = mpFullBuffer->GetDataCount();
-    mpFullBuffer = mpFullBuffer->GetNextBuffer();
-    return count;
-}
-
-uint32_t File::GetTotalBytesRead(void) {
-    // There's a possible race here with data reading functions
-    return mPing.GetTotalBytesRead() + mPong.GetTotalBytesRead();
-}
-
 

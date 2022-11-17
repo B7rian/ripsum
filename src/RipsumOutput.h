@@ -16,14 +16,15 @@
 
 #pragma once
 
-#include "File.h"
-#include "TaskState.h"
+#include <string>
+#include <filesystem>
 
 class RipsumOutput {
 public:
-    virtual void NotifyGoodChecksum(File *apFile) = 0;
-    virtual void NotifyBadChecksum(File *apFile) = 0;
-    virtual void NotifyGenerateDone(TaskState *apState) = 0;
+    virtual void NotifyGoodChecksum(const std::filesystem::path& aPath) = 0;
+    virtual void NotifyBadChecksum(const std::filesystem::path& aPath) = 0;
+    virtual void NotifyChecksumReady(const std::filesystem::path& aPath,
+                                     const std::string& aChecksum) = 0;
     virtual void NotifyBadFileFormat(void) = 0;
     virtual void UserNeedsHelp(void) = 0;
     virtual void Done(void) = 0;
