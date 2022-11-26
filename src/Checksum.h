@@ -21,36 +21,41 @@
 #include <iostream>
 #include <openssl/evp.h>
 
-class Hash {
+class Checksum {
 public:
-    void InitHash(void);
-    void AddBytesToHash2(uint8_t *aBytes, uint32_t aCount);
-    void FinishHash(void);
+    void InitChecksum(void);
+    void AddBytesToChecksum2(uint8_t *aBytes, uint32_t aCount);
+    void FinishChecksum(void);
+
     const std::string& GetChecksum(void) {
         return mChecksum;
     }
+
     void SetExpectedChecksum(const std::string& aChecksum) {
         mExpectedChecksum = aChecksum;
     }
+
+	// ChecksumIsOk returns true of the computed checksum is what 
+	// was expected.  Undefined behavior if the expected checksum isn't
+	// set
     bool ChecksumIsOk(void) {
-		//std::cerr << "E" << aChecksum << std::endl;
-		//std::cerr << "A" << mChecksum << std::endl;
         return mChecksum == mExpectedChecksum;
     }
 
-    // BytesHashed returns the total number of bytes hashed
-    uint32_t BytesHashed(void) {
-        return mBytesHashed;
+    // BytesChecksummed returns the total number of bytes checksummed
+    uint32_t BytesChecksummed(void) {
+        return mBytesChecksummed;
     }
 
 private:
-    EVP_MD_CTX *mCtx;
-    const EVP_MD *mMd;
-    std::mutex mDigestMutex;
+    EVP_MD_CTX *mCtx;				// Checksum contact
+    const EVP_MD *mMd;				// Message Digest object
+    std::mutex mDigestMutex;		// Mutex for access to mMd
     unsigned char mOutDigest[EVP_MAX_MD_SIZE];
-    unsigned int mDigestLen;
-    std::string mChecksum;
-    std::string mExpectedChecksum;
-    uint32_t mBytesHashed;      // Number of bytes hashed
+    unsigned int mDigestLen;		// Length of output digest
+
+    std::string mChecksum;			// Checksum/Digest in string form
+    std::string mExpectedChecksum;	// Expected CS/Digest for check
+    uint32_t mBytesChecksummed;     // Number of bytes checksummed
 };
 

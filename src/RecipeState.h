@@ -18,17 +18,17 @@
 #include <filesystem>
 
 #include "File.h"
-#include "Hash.h"
+#include "Checksum.h"
 
-class TaskState: public File, public Hash {
+class RecipeState: public File, public Checksum {
 public:
-    TaskState(const std::filesystem::path& aP, uint32_t aBlockSize)
+    RecipeState(const std::filesystem::path& aP, uint32_t aBlockSize)
         : File(aP, aBlockSize) { }
 
     void Init(void);
     void Finish(void);
-    void AddBytesToHash(void);
+    void AddBytesToChecksum(void);
 private:
-    std::mutex mGetAndHashMutex;
+    std::mutex mGetAndChecksumMutex;
 };
 

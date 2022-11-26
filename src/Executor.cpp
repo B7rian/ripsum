@@ -18,7 +18,7 @@
 #include <functional>
 
 #include "Executor.h"
-#include "TaskState.h"
+#include "RecipeState.h"
 #include "FileSystem.h"
 
 
@@ -28,7 +28,7 @@
 
 namespace compute {
 
-Task MakeChecksumFinishLambda(TaskState *apState,
+Task MakeChecksumFinishLambda(RecipeState *apState,
                               Executor *apEx,
                               RipsumOutput *apOut)
 {
@@ -36,20 +36,20 @@ Task MakeChecksumFinishLambda(TaskState *apState,
         apState->Finish();
         apOut->NotifyChecksumReady(apState->GetPath(), apState->GetChecksum());
         delete apState;
-        apEx->ActivityDone();
+        apEx->RecipeDone();
     };
 }
 
-Task MakeReadAndHashLambda(TaskState *apState,
-                           Executor *apEx,
-                           RipsumOutput *apOut)
+Task MakeReadAndChecksumLambda(RecipeState *apState,
+                               Executor *apEx,
+                               RipsumOutput *apOut)
 {
     return [apState, apEx, apOut](uint32_t aThreadNum) {
         apState->ReadBytes();
         if(apState->FileOk() == true) {
             apEx->AddTask(aThreadNum,
-                          MakeReadAndHashLambda(apState, apEx, apOut));
-            apState->AddBytesToHash();
+                          MakeReadAndChecksumLambda(apState, apEx, apOut));
+            apState->AddBytesToChecksum();
         }
         else {
             apEx->AddTask(aThreadNum,
@@ -64,9 +64,9 @@ Task MakeComputeChecksumLambda(std::filesystem::path aP,
                                RipsumOutput *apOut)
 {
     return [aP, aBlockSize, apEx, apOut](uint32_t aThreadNum) {
-        TaskState *pState = new TaskState(aP, aBlockSize);
+        RecipeState *pState = new RecipeState(aP, aBlockSize);
         pState->Init();
-        apEx->AddTask(aThreadNum, MakeReadAndHashLambda(pState, apEx, apOut));
+        apEx->AddTask(aThreadNum, MakeReadAndChecksumLambda(pState, apEx, apOut));
     };
 }
 
@@ -75,35 +75,35 @@ Task MakeComputeChecksumLambda(std::filesystem::path aP,
 
 namespace check {
 
-Task MakeChecksumFinishLambda(TaskState *apState,
+Task MakeChecksumFinishLambda(RecipeState *apState,
                               Executor *apEx,
                               RipsumOutput *apOut)
 {
     return [apState, apEx, apOut](uint32_t aThreadNum) {
         apState->Finish();
 
-		if(apState->ChecksumIsOk()) {
-			apOut->NotifyGoodChecksum(apState->GetPath());
-		}
-		else {
-			apOut->NotifyBadChecksum(apState->GetPath());
-		}
+        if(apState->ChecksumIsOk()) {
+            apOut->NotifyGoodChecksum(apState->GetPath());
+        }
+        else {
+            apOut->NotifyBadChecksum(apState->GetPath());
+        }
 
         delete apState;
-        apEx->ActivityDone();
+        apEx->RecipeDone();
     };
 }
 
-Task MakeReadAndHashLambda(TaskState *apState,
-                           Executor *apEx,
-                           RipsumOutput *apOut)
+Task MakeReadAndChecksumLambda(RecipeState *apState,
+                               Executor *apEx,
+                               RipsumOutput *apOut)
 {
     return [apState, apEx, apOut](uint32_t aThreadNum) {
         apState->ReadBytes();
         if(apState->FileOk() == true) {
             apEx->AddTask(aThreadNum,
-                          MakeReadAndHashLambda(apState, apEx, apOut));
-            apState->AddBytesToHash();
+                          MakeReadAndChecksumLambda(apState, apEx, apOut));
+            apState->AddBytesToChecksum();
         }
         else {
             apEx->AddTask(aThreadNum,
@@ -113,16 +113,16 @@ Task MakeReadAndHashLambda(TaskState *apState,
 }
 
 Task MakeCheckChecksumLambda(std::filesystem::path aP,
-		                     std::string aChecksum,
+                             std::string aChecksum,
                              uint32_t aBlockSize,
                              Executor *apEx,
                              RipsumOutput *apOut)
 {
     return [aP, aChecksum, aBlockSize, apEx, apOut](uint32_t aThreadNum) {
-        TaskState *pState = new TaskState(aP, aBlockSize);
+        RecipeState *pState = new RecipeState(aP, aBlockSize);
         pState->Init();
-		pState->SetExpectedChecksum(aChecksum);
-        apEx->AddTask(aThreadNum, MakeReadAndHashLambda(pState, apEx, apOut));
+        pState->SetExpectedChecksum(aChecksum);
+        apEx->AddTask(aThreadNum, MakeReadAndChecksumLambda(pState, apEx, apOut));
     };
 }
 
@@ -135,9 +135,9 @@ void Executor::ComputeChecksums(const std::filesystem::path& aPath,
 {
     FileSystem::FindFiles(aPath,
     [&](std::filesystem::path aP) {
-        ActivityStarted();  // Matching ActivityDone() is in the final Task
+        RecipeStarted();  // Matching RecipeDone() is in the final Task
         AddTask(compute::MakeComputeChecksumLambda(aP, aConfig.mBlockSize,
-                                                   this, apOut));
+                this, apOut));
     });
 }
 
@@ -148,19 +148,19 @@ void Executor::CheckChecksums(const std::filesystem::path& aChecksumFile,
 {
     aUserIn.ReadChecksumsFromFile(aChecksumFile,
     [&](std::filesystem::path aP, std::string aChecksum) {
-        ActivityStarted();  // Matching ActivityDone() is in the final Task
-        AddTask(check::MakeCheckChecksumLambda(aP, aChecksum, 
-					                    aUserIn.mBlockSize,
-                                        this, apOut));
+        RecipeStarted();  // Matching RecipeDone() is in the final Task
+        AddTask(check::MakeCheckChecksumLambda(aP, aChecksum,
+                                               aUserIn.mBlockSize,
+                                               this, apOut));
     });
 }
 
 
-// ActivityStarted is called below to account for the main thread.  When
+// RecipeStarted is called below to account for the main thread.  When
 // the main thread calls Wait() we'll decrement it to signal worker threads
 // that we don't have anything else to do
 Executor::Executor(void): mtRunning{0} {
-    ActivityStarted();
+    RecipeStarted();
     // Create per-thread TaskLists 1st so vector can reallocate internally
     // without messing up running threads
     for(int i = 0; i < 4; i++) {
@@ -173,12 +173,12 @@ Executor::Executor(void): mtRunning{0} {
 
 
 // Wait for all the work to complete.  If the main thread has called Wait()
-// we assume it is also done doing stuff and call ActivityDone() to signal
+// we assume it is also done doing stuff and call RecipeDone() to signal
 // the worker threads that it's done.
 void Executor::Wait(void) {
     using namespace std::chrono_literals;
 
-    ActivityDone();
+    RecipeDone();
     while(mtRunning > 0 || !mAnyoneTasks.Empty()) {
         // Make tasklists first b/c vector will realocate and move
         // stuff and cause segfaults

@@ -17,32 +17,32 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
-#include "TaskState.h"
+#include "RecipeState.h"
 
-void TaskState::Init(void) {
-    InitHash();
+void RecipeState::Init(void) {
+    InitChecksum();
 }
 
-void TaskState::Finish(void) {
+void RecipeState::Finish(void) {
     using namespace std::chrono_literals;
 
-    while(BytesRead() != BytesHashed()) {
+    while(BytesRead() != BytesChecksummed()) {
         //std::cerr << "Waiting for other tasks to complete" << std::endl;
         std::this_thread::sleep_for(25ms);
     }
 
-    FinishHash();
+    FinishChecksum();
 }
 
-void TaskState::AddBytesToHash(void) {
+void RecipeState::AddBytesToChecksum(void) {
     uint8_t *pBuf;
     uint32_t n;
 
-    std::lock_guard<std::mutex> lock(mGetAndHashMutex);
+    std::lock_guard<std::mutex> lock(mGetAndChecksumMutex);
     n = GetBytes(pBuf);
     //std::cerr << "*" << n << std::endl;
     if(n > 0) {
-        AddBytesToHash2(pBuf, n);
+        AddBytesToChecksum2(pBuf, n);
         CleanupBytes(pBuf);
     }
 }

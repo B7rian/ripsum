@@ -26,12 +26,12 @@ int main(int argc, char **argv) {
     input.ParseCommandline(argc, argv);
 
     for(auto& p: input.mPaths) {
-		if(input.mCheckFlag) {
-			ex.CheckChecksums(p, input, &out);
-		}
-		else {
-			ex.ComputeChecksums(p, input, &out);
-		}
+        if(input.mCheckFlag) {
+            ex.CheckChecksums(p, input, &out);
+        }
+        else {
+            ex.ComputeChecksums(p, input, &out);
+        }
     }
 
     ex.Wait();

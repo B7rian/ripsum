@@ -32,8 +32,8 @@ public:
     void Done(void);
 
 private:
-	std::mutex mOutputMutex;
-	std::atomic<uint32_t> mBadSums {0};
-	std::atomic<uint32_t> mBadLines {0};
+    std::mutex mOutputMutex;
+    std::atomic<uint32_t> mBadSums {0};
+    std::atomic<uint32_t> mBadLines {0};
 };
 

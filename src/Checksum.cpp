@@ -21,25 +21,25 @@
 #include <mutex>
 
 #include <openssl/evp.h>
-#include "Hash.h"
+#include "Checksum.h"
 
 static std::mutex sgEVPMutex;
 
-void Hash::InitHash(void) {
+void Checksum::InitChecksum(void) {
     std::lock_guard<std::mutex> lock(sgEVPMutex);
     mCtx = EVP_MD_CTX_new();
     mMd = EVP_sha256();
     EVP_DigestInit_ex(mCtx, mMd, NULL);
-    mBytesHashed = 0;
+    mBytesChecksummed = 0;
 }
 
-void Hash::AddBytesToHash2(uint8_t *aBytes, uint32_t aCount) {
+void Checksum::AddBytesToChecksum2(uint8_t *aBytes, uint32_t aCount) {
     std::lock_guard<std::mutex> lock(mDigestMutex);
     EVP_DigestUpdate(mCtx, aBytes, aCount);
-    mBytesHashed += aCount;
+    mBytesChecksummed += aCount;
 }
 
-void Hash::FinishHash(void) {
+void Checksum::FinishChecksum(void) {
     {
         std::lock_guard<std::mutex> lock(mDigestMutex);
         EVP_DigestFinal_ex(mCtx, mOutDigest, &mDigestLen);

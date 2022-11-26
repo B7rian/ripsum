@@ -47,7 +47,7 @@ ChecksumLine::ChecksumLine(std::string aLine)
     // captures[0] is the whole match
     mChecksum = captures[1];
     //Used to be mPath = mUTFConverter.from_bytes(captures[2]);
-	//but this was throwing an exception on Linux 
+    //but this was throwing an exception on Linux
     mPath = captures[2];
 
     mOk = true;
