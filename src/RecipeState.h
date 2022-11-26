@@ -25,7 +25,6 @@ public:
     RecipeState(const std::filesystem::path& aP, uint32_t aBlockSize)
         : File(aP, aBlockSize) { }
 
-    void Init(void);
     void Finish(void);
     void AddBytesToChecksum(void);
 private:

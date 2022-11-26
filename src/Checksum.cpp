@@ -25,7 +25,7 @@
 
 static std::mutex sgEVPMutex;
 
-void Checksum::InitChecksum(void) {
+Checksum::Checksum(void) {
     std::lock_guard<std::mutex> lock(sgEVPMutex);
     mCtx = EVP_MD_CTX_new();
     mMd = EVP_sha256();

@@ -65,7 +65,6 @@ Task MakeComputeChecksumLambda(std::filesystem::path aP,
 {
     return [aP, aBlockSize, apEx, apOut](uint32_t aThreadNum) {
         RecipeState *pState = new RecipeState(aP, aBlockSize);
-        pState->Init();
         apEx->AddTask(aThreadNum, MakeReadAndChecksumLambda(pState, apEx, apOut));
     };
 }
@@ -120,7 +119,6 @@ Task MakeCheckChecksumLambda(std::filesystem::path aP,
 {
     return [aP, aChecksum, aBlockSize, apEx, apOut](uint32_t aThreadNum) {
         RecipeState *pState = new RecipeState(aP, aBlockSize);
-        pState->Init();
         pState->SetExpectedChecksum(aChecksum);
         apEx->AddTask(aThreadNum, MakeReadAndChecksumLambda(pState, apEx, apOut));
     };
@@ -159,7 +157,7 @@ void Executor::CheckChecksums(const std::filesystem::path& aChecksumFile,
 // RecipeStarted is called below to account for the main thread.  When
 // the main thread calls Wait() we'll decrement it to signal worker threads
 // that we don't have anything else to do
-Executor::Executor(void): mtRunning{0} {
+Executor::Executor(void): mtActiveRecipes{0} {
     RecipeStarted();
     // Create per-thread TaskLists 1st so vector can reallocate internally
     // without messing up running threads
@@ -179,13 +177,13 @@ void Executor::Wait(void) {
     using namespace std::chrono_literals;
 
     RecipeDone();
-    while(mtRunning > 0 || !mAnyoneTasks.Empty()) {
+    while(mtActiveRecipes > 0 || !mAnyoneTasks.Empty()) {
         // Make tasklists first b/c vector will realocate and move
         // stuff and cause segfaults
         while(!mAnyoneTasks.Empty()) {
             std::this_thread::sleep_for(25ms);
         }
-        while(mtRunning > 0) {
+        while(mtActiveRecipes > 0) {
             std::this_thread::sleep_for(25ms);
         }
     }
@@ -196,7 +194,16 @@ void Executor::Wait(void) {
     }
 }
 
+
+// The Worker function should be run in thread.  It looks for a task
+// in its own task list or, if one isn't available there, in the task
+// list shared by all the workers.  It then runs the task it found and
+// repeats.  If no tasks are available it'll keep looking until the
+// number of active recipes goes to 0 (just in case the recipe gives it
+// some work to do)
 void Executor::Worker(uint32_t aThreadNum) {
+    using namespace std::chrono_literals;
+
     Task newTask;
     bool haveTask;
 
@@ -205,9 +212,12 @@ void Executor::Worker(uint32_t aThreadNum) {
         haveTask = mAnyoneTasks.GetTask(newTask);
     }
 
-    while(haveTask || mtRunning) {
+    while(haveTask || mtActiveRecipes) {
         if(haveTask) {
             newTask(aThreadNum);
+        }
+        else {
+            std::this_thread::sleep_for(25ms);
         }
 
         haveTask = mvThreadTasks[aThreadNum]->GetTask(newTask);

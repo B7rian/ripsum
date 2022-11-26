@@ -23,7 +23,7 @@
 
 class Checksum {
 public:
-    void InitChecksum(void);
+    Checksum(void);
     void AddBytesToChecksum2(uint8_t *aBytes, uint32_t aCount);
     void FinishChecksum(void);
 
@@ -35,9 +35,9 @@ public:
         mExpectedChecksum = aChecksum;
     }
 
-	// ChecksumIsOk returns true of the computed checksum is what 
-	// was expected.  Undefined behavior if the expected checksum isn't
-	// set
+    // ChecksumIsOk returns true of the computed checksum is what
+    // was expected.  Undefined behavior if the expected checksum isn't
+    // set
     bool ChecksumIsOk(void) {
         return mChecksum == mExpectedChecksum;
     }

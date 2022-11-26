@@ -42,20 +42,25 @@ public:
                         UserInput& aConfig,
                         RipsumOutput *apOut);
 
+    // RecipeStarted logs when a new recipe starts running
     void RecipeStarted(void) {
-        mtRunning++;
+        mtActiveRecipes++;
     }
 
+    // AddTask adds a task to the task list that anyone can take from
     void AddTask(const Task& aT) {
         mAnyoneTasks.AddTask(aT);
     }
 
+    // AddTask whith a thread parameter adds a task to the task list
+    // for the thread that the parameter specifies
     void AddTask(const uint32_t aThreadNum, const Task& aT) {
         mvThreadTasks[aThreadNum]->AddTask(aT);
     }
 
+    // RecipeDone logs when a recipe has completed
     void RecipeDone(void) {
-        mtRunning--;
+        mtActiveRecipes--;
     }
 
     // Wait waits for all queues to empty and Worker threads to finish
@@ -67,6 +72,6 @@ private:
     TaskList mAnyoneTasks;                // Lists of tasks any thread can run
     std::vector<TaskList*> mvThreadTasks; // Tasks for each thread
     std::list<std::thread> mlThreads;     // The worker threads
-    std::atomic<uint32_t> mtRunning;	  // Number of running activities
+    std::atomic<uint32_t> mtActiveRecipes;// Number of running recipes
 };
 

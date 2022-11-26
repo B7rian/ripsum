@@ -19,10 +19,6 @@
 #include <thread>
 #include "RecipeState.h"
 
-void RecipeState::Init(void) {
-    InitChecksum();
-}
-
 void RecipeState::Finish(void) {
     using namespace std::chrono_literals;
 
