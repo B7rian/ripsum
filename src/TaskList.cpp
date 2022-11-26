@@ -39,8 +39,8 @@ bool TaskList::GetTask(Task& aT) {
         return false;
     }
 
-    aT = mvTasks.front();
-    mvTasks.pop_front();
+    aT = mvTasks.back();
+    mvTasks.pop_back();
     return true;
 }
 
