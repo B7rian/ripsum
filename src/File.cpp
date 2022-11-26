@@ -50,18 +50,18 @@ uint32_t File::ReadBytes(void) {
 
     mOk = true;
     std::lock_guard<std::mutex> lock(mBuffersMutex);
-    mlBuffers.push_back(b); // Makes a copy
+    mBuffers.push_back(b); // Makes a copy
     return b.mCount;
 }
 
 
 uint32_t File::GetBytes(uint8_t* &apBytes) {
     std::lock_guard<std::mutex> lock(mBuffersMutex);
-    if(mlBuffers.empty()) {
+    if(mBuffers.empty()) {
         return 0;
     }
-    Buffer b = mlBuffers.front();
-    mlBuffers.pop_front();
+    Buffer b = mBuffers.front();
+    mBuffers.pop_front();
     apBytes = b.pBytes;
     return b.mCount;
 }

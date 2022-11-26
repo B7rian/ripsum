@@ -20,7 +20,7 @@
 #include <fstream>
 #include <filesystem>
 #include <mutex>
-#include <list>
+#include <deque>
 
 //
 // File is the file-related state that gets passed between the tasks inside
@@ -73,7 +73,7 @@ private:
     std::ifstream mSin;				// Input stream
     std::mutex mStreamMutex;        // Mutex for stream access
 
-    std::list<Buffer> mlBuffers;    // A collection of buffers
+    std::deque<Buffer> mBuffers;    // A collection of buffers
     std::mutex mBuffersMutex;       // Mutex for buffer collection access
 };
 

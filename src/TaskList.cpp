@@ -21,6 +21,9 @@
 // than the front so it doesn't have to move everything done.  This will
 // trigger allocations when the vector needs to expand but they'll be
 // less often than a std:list or something like it would need to allocate.
+// This is actually a little faster than using a deque to keep things
+// in order, but the tasks need to be aware that they might run out of 
+// order and handle races - this is managable for this particular application
 void TaskList::AddTask(const Task& aT) {
     std::lock_guard<std::mutex> lock(mTaskListMutex);
     mvTasks.push_back(aT);
@@ -36,8 +39,8 @@ bool TaskList::GetTask(Task& aT) {
         return false;
     }
 
-    aT = mvTasks.back();
-    mvTasks.pop_back();
+    aT = mvTasks.front();
+    mvTasks.pop_front();
     return true;
 }
 
