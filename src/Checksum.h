@@ -30,10 +30,10 @@ public:
     // Include th egiven bytes in the checksum being computed.
     void AddBytesToChecksum(uint8_t *aBytes, uint32_t aCount);
 
-	// Gets the checksum in string form
+    // Gets the checksum in string form
     const std::string& GetChecksum(void);
 
-	// SetExpectedChecksum is a setter for the expected checksum
+    // SetExpectedChecksum is a setter for the expected checksum
     void SetExpectedChecksum(const std::string& aChecksum) {
         mExpectedChecksum = aChecksum;
     }

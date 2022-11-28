@@ -31,7 +31,7 @@ void RecipeState::AddBytesToChecksum(void) {
     std::lock_guard<std::mutex> lock(mGetAndChecksumMutex);
     n = GetBytes(pBuf);
     if(n > 0) {
-		Checksum::AddBytesToChecksum(pBuf, n);
+        Checksum::AddBytesToChecksum(pBuf, n);
         CleanupBytes(pBuf);
     }
 }

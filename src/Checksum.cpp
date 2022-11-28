@@ -48,7 +48,7 @@ const std::string& Checksum::GetChecksum(void) {
     {
         std::lock_guard<std::mutex> lock(sgEVPMutex);
         EVP_MD_CTX_free(mCtx);
-		mCtx = nullptr;
+        mCtx = nullptr;
     }
 
     std::stringstream str;
@@ -60,6 +60,6 @@ const std::string& Checksum::GetChecksum(void) {
 
     mChecksum = str.str();
 
-	return mChecksum;
+    return mChecksum;
 }
 
