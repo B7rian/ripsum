@@ -19,16 +19,10 @@
 #include <thread>
 #include "RecipeState.h"
 
-void RecipeState::Finish(void) {
-    using namespace std::chrono_literals;
-
-    while(BytesRead() != BytesChecksummed()) {
-        //std::cerr << "Waiting for other tasks to complete" << std::endl;
-        std::this_thread::sleep_for(25ms);
-    }
-
-    FinishChecksum();
+bool RecipeState::IsDone(void) {
+    return BytesRead() == BytesChecksummed();
 }
+
 
 void RecipeState::AddBytesToChecksum(void) {
     uint8_t *pBuf;
@@ -36,9 +30,8 @@ void RecipeState::AddBytesToChecksum(void) {
 
     std::lock_guard<std::mutex> lock(mGetAndChecksumMutex);
     n = GetBytes(pBuf);
-    //std::cerr << "*" << n << std::endl;
     if(n > 0) {
-        AddBytesToChecksum2(pBuf, n);
+		Checksum::AddBytesToChecksum(pBuf, n);
         CleanupBytes(pBuf);
     }
 }

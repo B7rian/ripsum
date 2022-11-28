@@ -32,8 +32,12 @@ Task MakeChecksumFinishLambda(RecipeState *apState,
                               Executor *apEx,
                               RipsumOutput *apOut)
 {
+    using namespace std::chrono_literals;
+
     return [apState, apEx, apOut](uint32_t aThreadNum) {
-        apState->Finish();
+		while(!apState->IsDone()) {
+			std::this_thread::sleep_for(25ms);
+		}
         apOut->NotifyChecksumReady(apState->GetPath(), apState->GetChecksum());
         delete apState;
         apEx->RecipeDone();
@@ -78,8 +82,12 @@ Task MakeChecksumFinishLambda(RecipeState *apState,
                               Executor *apEx,
                               RipsumOutput *apOut)
 {
+    using namespace std::chrono_literals;
+
     return [apState, apEx, apOut](uint32_t aThreadNum) {
-        apState->Finish();
+		while(!apState->IsDone()) {
+			std::this_thread::sleep_for(25ms);
+		}
 
         if(apState->ChecksumIsOk()) {
             apOut->NotifyGoodChecksum(apState->GetPath());

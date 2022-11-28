@@ -21,16 +21,19 @@
 #include <iostream>
 #include <openssl/evp.h>
 
+// Checksum has all the state required to compute a checksum
+
 class Checksum {
 public:
     Checksum(void);
-    void AddBytesToChecksum2(uint8_t *aBytes, uint32_t aCount);
-    void FinishChecksum(void);
 
-    const std::string& GetChecksum(void) {
-        return mChecksum;
-    }
+    // Include th egiven bytes in the checksum being computed.
+    void AddBytesToChecksum(uint8_t *aBytes, uint32_t aCount);
 
+	// Gets the checksum in string form
+    const std::string& GetChecksum(void);
+
+	// SetExpectedChecksum is a setter for the expected checksum
     void SetExpectedChecksum(const std::string& aChecksum) {
         mExpectedChecksum = aChecksum;
     }
@@ -39,7 +42,7 @@ public:
     // was expected.  Undefined behavior if the expected checksum isn't
     // set
     bool ChecksumIsOk(void) {
-        return mChecksum == mExpectedChecksum;
+        return GetChecksum() == mExpectedChecksum;
     }
 
     // BytesChecksummed returns the total number of bytes checksummed

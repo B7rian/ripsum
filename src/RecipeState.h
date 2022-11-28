@@ -25,8 +25,8 @@ public:
     RecipeState(const std::filesystem::path& aP, uint32_t aBlockSize)
         : File(aP, aBlockSize) { }
 
-    void Finish(void);
     void AddBytesToChecksum(void);
+    bool IsDone(void);
 private:
     std::mutex mGetAndChecksumMutex;
 };

@@ -25,7 +25,7 @@
 
 static std::mutex sgEVPMutex;
 
-Checksum::Checksum(void) {
+Checksum::Checksum(void): mChecksum{""} {
     std::lock_guard<std::mutex> lock(sgEVPMutex);
     mCtx = EVP_MD_CTX_new();
     mMd = EVP_sha256();
@@ -33,13 +33,13 @@ Checksum::Checksum(void) {
     mBytesChecksummed = 0;
 }
 
-void Checksum::AddBytesToChecksum2(uint8_t *aBytes, uint32_t aCount) {
+void Checksum::AddBytesToChecksum(uint8_t *aBytes, uint32_t aCount) {
     std::lock_guard<std::mutex> lock(mDigestMutex);
     EVP_DigestUpdate(mCtx, aBytes, aCount);
     mBytesChecksummed += aCount;
 }
 
-void Checksum::FinishChecksum(void) {
+const std::string& Checksum::GetChecksum(void) {
     {
         std::lock_guard<std::mutex> lock(mDigestMutex);
         EVP_DigestFinal_ex(mCtx, mOutDigest, &mDigestLen);
@@ -48,6 +48,7 @@ void Checksum::FinishChecksum(void) {
     {
         std::lock_guard<std::mutex> lock(sgEVPMutex);
         EVP_MD_CTX_free(mCtx);
+		mCtx = nullptr;
     }
 
     std::stringstream str;
@@ -58,5 +59,7 @@ void Checksum::FinishChecksum(void) {
     }
 
     mChecksum = str.str();
+
+	return mChecksum;
 }
 
