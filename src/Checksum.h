@@ -59,6 +59,6 @@ private:
 
     std::string mChecksum;			// Checksum/Digest in string form
     std::string mExpectedChecksum;	// Expected CS/Digest for check
-    uint32_t mBytesChecksummed;     // Number of bytes checksummed
+	std::uintmax_t mBytesChecksummed; // Number of bytes checksummed
 };
 

@@ -23,25 +23,29 @@
 void FileSystem::FindFiles(const std::filesystem::path aRoot,
                            std::function<void(std::filesystem::path)> aFileCb)
 {
-    std::list<std::filesystem::path> paths;
+    std::vector<std::filesystem::path> paths;
 
-    paths.push_front(aRoot);
+    paths.push_back(aRoot);
 
     while(!paths.empty()) {
-        std::filesystem::path p = paths.front();
-        paths.pop_front();
+        std::filesystem::path p = paths.back();
+        paths.pop_back();
 
-        if(std::filesystem::is_regular_file(p)) {
-            aFileCb(p);
-        }
-        else if(std::filesystem::is_directory(p)) {
-            for(auto& entry: std::filesystem::directory_iterator(p)) {
-                if(entry.is_regular_file()) {
-                    aFileCb(entry.path());
-                }
-                else if(entry.is_directory()) {
-                    paths.push_front(entry.path());
-                }
+        if(!std::filesystem::is_symlink(p)) {
+            if(std::filesystem::is_regular_file(p)) {
+                aFileCb(p);
+            }
+            else if(std::filesystem::is_directory(p)) {
+                for(auto& entry: std::filesystem::directory_iterator(p)) {
+				    if(!entry.is_symlink()) {
+						if(entry.is_regular_file()) {
+							aFileCb(entry.path());
+						}
+						else if(entry.is_directory()) {
+							paths.push_back(entry.path());
+						}
+					}
+				}
             }
         }
     }

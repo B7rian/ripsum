@@ -42,6 +42,11 @@ public:
         return mOk;
     }
 
+    // GetFileSize is obvious
+    std::uintmax_t GetFileSize(void) {
+        return mFileSize;
+    }
+
     // ReadBytes reads some bytes from the file into an internal buffer
     // Returns the number of bytes read
     uint32_t ReadBytes(void);
@@ -66,9 +71,10 @@ private:
     };
 
     std::filesystem::path mPath;	// Path to file
+    std::uintmax_t mFileSize;		// Cache the file size
+	std::uintmax_t mBytesRead;      // Number of bytes read
     uint32_t mBlockSize;            // Size of a single block of data
     bool mOk;						// No errors and not EOF
-    uint32_t mBytesRead;            // Number of bytes read
 
     std::ifstream mSin;				// Input stream
     std::mutex mStreamMutex;        // Mutex for stream access

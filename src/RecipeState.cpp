@@ -20,7 +20,7 @@
 #include "RecipeState.h"
 
 bool RecipeState::IsDone(void) {
-    return BytesRead() == BytesChecksummed();
+    return !FileOk() || (BytesChecksummed() >= GetFileSize());
 }
 
 

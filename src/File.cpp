@@ -21,6 +21,7 @@ File::File(const std::filesystem::path& aP, uint32_t aBlockSize)
     : mPath{aP}, mBlockSize{aBlockSize}, mBytesRead{0}
 {
     mSin.open(mPath, std::ios::binary);
+    mFileSize = std::filesystem::file_size(aP);
 }
 
 
