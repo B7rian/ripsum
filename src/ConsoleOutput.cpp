@@ -82,7 +82,7 @@ void ConsoleOutput::UserNeedsHelp(void) {
     std::vector<std::string> vHelp= {
         "Usage: sha256sum [OPTIONS] [FILE | DIRECTORY]...",
         "       sha256sum [OPTIONS] -c [FILE]...",
-        "Print of check SHA256 (256-bit) checksums.",
+        "Print or check SHA256 (256-bit) checksums.",
         "",
         "-c, --check\tRead SHA256 sums from the FILEs and check them",
         "-s <size>\tRead <size> bytes at a time from the input file(s)",
