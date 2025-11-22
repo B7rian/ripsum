@@ -24,7 +24,7 @@
 #include <openssl/evp.h>
 #include <string>
 
-class Hash {
+class OpenSSLHash {
   public:
     void InitHash(void);
     void AddBytesToHash2(uint8_t *aBytes,

@@ -23,12 +23,12 @@
 #include <sstream>
 #include <string>
 
-#include "Hash.h"
+#include "OpenSSLHash.h"
 #include <openssl/evp.h>
 
 static std::mutex sgEVPMutex;
 
-void Hash::InitHash(void) {
+void OpenSSLHash::InitHash(void) {
     std::lock_guard<std::mutex> lock(sgEVPMutex);
     mCtx = EVP_MD_CTX_new();
     mMd = EVP_sha256();
@@ -36,14 +36,14 @@ void Hash::InitHash(void) {
     mBytesHashed = 0;
 }
 
-void Hash::AddBytesToHash2(uint8_t *aBytes,
-                           uint32_t aCount) {
+void OpenSSLHash::AddBytesToHash2(uint8_t *aBytes,
+                                  uint32_t aCount) {
     std::lock_guard<std::mutex> lock(mDigestMutex);
     EVP_DigestUpdate(mCtx, aBytes, aCount);
     mBytesHashed += aCount;
 }
 
-void Hash::FinishHash(void) {
+void OpenSSLHash::FinishHash(void) {
     {
         std::lock_guard<std::mutex> lock(mDigestMutex);
         EVP_DigestFinal_ex(

@@ -21,9 +21,9 @@
 #include <filesystem>
 
 #include "File.h"
-#include "Hash.h"
+#include "OpenSSLHash.h"
 
-class TaskState : public File, public Hash {
+class TaskState : public File, public OpenSSLHash {
   public:
     TaskState(const std::filesystem::path &aP,
               uint32_t aBlockSize)

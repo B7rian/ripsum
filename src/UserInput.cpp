@@ -89,7 +89,7 @@ void UserInput::ParseCommandline(int argc,
             break; // 0 means long option detected and
                    // handled
                    //			case 'b': mBinaryFlag =
-                   //1; break;
+                   // 1; break;
         case 'c':
             mCheckFlag = 1;
             break;
