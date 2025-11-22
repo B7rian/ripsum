@@ -28,17 +28,21 @@
 // eventually support.
 //
 
-class ChecksumLine {
+class ChecksumLine
+{
   public:
     ChecksumLine(std::string aLine);
 
-    bool IsOk(void) {
+    bool IsOk(void)
+    {
         return mOk;
     }
-    std::filesystem::path GetPath(void) {
+    std::filesystem::path GetPath(void)
+    {
         return mPath;
     }
-    std::string GetChecksum(void) {
+    std::string GetChecksum(void)
+    {
         return mChecksum;
     }
 

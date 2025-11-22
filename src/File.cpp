@@ -22,12 +22,13 @@
 
 File::File(const std::filesystem::path &aP,
            uint32_t aBlockSize)
-    : mPath{aP}, mBlockSize{aBlockSize},
-      mBytesRead{0} {
+    : mPath{aP}, mBlockSize{aBlockSize}, mBytesRead{0}
+{
     mSin.open(mPath, std::ios::binary);
 }
 
-uint32_t File::ReadBytes(void) {
+uint32_t File::ReadBytes(void)
+{
     Buffer b;
     b.pBytes = new uint8_t[mBlockSize];
     b.mCount = 0;
@@ -57,7 +58,8 @@ uint32_t File::ReadBytes(void) {
     return b.mCount;
 }
 
-uint32_t File::GetBytes(uint8_t *&apBytes) {
+uint32_t File::GetBytes(uint8_t *&apBytes)
+{
     std::lock_guard<std::mutex> lock(mBuffersMutex);
     if (mlBuffers.empty()) {
         return 0;
@@ -68,11 +70,13 @@ uint32_t File::GetBytes(uint8_t *&apBytes) {
     return b.mCount;
 }
 
-void File::CleanupBytes(uint8_t *pBytes) {
+void File::CleanupBytes(uint8_t *pBytes)
+{
     delete[] pBytes;
 }
 
-File::~File(void) {
+File::~File(void)
+{
     mSin.close();
 
     uint8_t *pBytes;

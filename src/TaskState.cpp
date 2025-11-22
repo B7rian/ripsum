@@ -22,11 +22,13 @@
 #include <iostream>
 #include <thread>
 
-void TaskState::Init(void) {
+void TaskState::Init(void)
+{
     InitHash();
 }
 
-void TaskState::Finish(void) {
+void TaskState::Finish(void)
+{
     using namespace std::chrono_literals;
 
     while (BytesRead() != BytesHashed()) {
@@ -38,7 +40,8 @@ void TaskState::Finish(void) {
     FinishHash();
 }
 
-void TaskState::AddBytesToHash(void) {
+void TaskState::AddBytesToHash(void)
+{
     uint8_t *pBuf;
     uint32_t n;
 

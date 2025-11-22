@@ -22,7 +22,8 @@
 #include <filesystem>
 #include <string>
 
-class RipsumOutput {
+class RipsumOutput
+{
   public:
     virtual void NotifyGoodChecksum(
         const std::filesystem::path &aPath) = 0;

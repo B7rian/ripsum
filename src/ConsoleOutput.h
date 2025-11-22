@@ -24,7 +24,8 @@
 
 #include "RipsumOutput.h"
 
-class ConsoleOutput : public RipsumOutput {
+class ConsoleOutput : public RipsumOutput
+{
   public:
     void NotifyGoodChecksum(
         const std::filesystem::path &aPath);

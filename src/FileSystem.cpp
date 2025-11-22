@@ -24,8 +24,8 @@
 
 void FileSystem::FindFiles(
     const std::filesystem::path aRoot,
-    std::function<void(std::filesystem::path)>
-        aFileCb) {
+    std::function<void(std::filesystem::path)> aFileCb)
+{
     std::list<std::filesystem::path> paths;
 
     paths.push_front(aRoot);

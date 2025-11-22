@@ -23,11 +23,13 @@
 #include "File.h"
 #include "OpenSSLHash.h"
 
-class TaskState : public File, public OpenSSLHash {
+class TaskState : public File, public OpenSSLHash
+{
   public:
     TaskState(const std::filesystem::path &aP,
               uint32_t aBlockSize)
-        : File(aP, aBlockSize) {
+        : File(aP, aBlockSize)
+    {
     }
 
     void Init(void);

@@ -26,13 +26,15 @@
 // allocations when the vector needs to expand but
 // they'll be less often than a std:list or something
 // like it would need to allocate.
-void TaskList::AddTask(const Task &aT) {
+void TaskList::AddTask(const Task &aT)
+{
     std::lock_guard<std::mutex> lock(mTaskListMutex);
     mvTasks.push_back(aT);
 }
 
 // GetTask is also thread safe.
-bool TaskList::GetTask(Task &aT) {
+bool TaskList::GetTask(Task &aT)
+{
     std::lock_guard<std::mutex> lock(mTaskListMutex);
     if (mvTasks.empty()) {
         aT = [](uint32_t unused) { abort(); };
@@ -48,7 +50,8 @@ bool TaskList::GetTask(Task &aT) {
 // might have a task to run and be working on it even
 // if the list is empty, and also that Worker can add
 // more tasks to the list before it's done.
-bool TaskList::Empty(void) {
+bool TaskList::Empty(void)
+{
     std::lock_guard<std::mutex> lock(mTaskListMutex);
     return mvTasks.empty();
 }

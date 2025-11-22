@@ -37,7 +37,8 @@
 //
 
 void ConsoleOutput::NotifyGoodChecksum(
-    const std::filesystem::path &aPath) {
+    const std::filesystem::path &aPath)
+{
     std::lock_guard<std::mutex> lock(mOutputMutex);
     std::cout << aPath.generic_u8string();
     std::cout << ": OK";
@@ -45,7 +46,8 @@ void ConsoleOutput::NotifyGoodChecksum(
 }
 
 void ConsoleOutput::NotifyBadChecksum(
-    const std::filesystem::path &aPath) {
+    const std::filesystem::path &aPath)
+{
     std::lock_guard<std::mutex> lock(mOutputMutex);
     std::cout << aPath.generic_u8string();
     std::cout << ": FAILED";
@@ -55,7 +57,8 @@ void ConsoleOutput::NotifyBadChecksum(
 
 void ConsoleOutput::NotifyChecksumReady(
     const std::filesystem::path &aPath,
-    const std::string &aChecksum) {
+    const std::string &aChecksum)
+{
     std::lock_guard<std::mutex> lock(mOutputMutex);
     std::cout << aChecksum
 #if defined(__MINGW64__) || defined(__MINGW32__)
@@ -66,11 +69,13 @@ void ConsoleOutput::NotifyChecksumReady(
               << aPath.generic_u8string() << '\n';
 }
 
-void ConsoleOutput::NotifyBadFileFormat(void) {
+void ConsoleOutput::NotifyBadFileFormat(void)
+{
     mBadLines++;
 }
 
-void ConsoleOutput::Done(void) {
+void ConsoleOutput::Done(void)
+{
     if (mBadSums) {
         std::cerr << "sha256sum: WARNING: " << mBadSums
                   << " computed ";
@@ -88,7 +93,8 @@ void ConsoleOutput::Done(void) {
     }
 }
 
-void ConsoleOutput::UserNeedsHelp(void) {
+void ConsoleOutput::UserNeedsHelp(void)
+{
     std::vector<std::string> vHelp = {
         "Usage: sha256sum [OPTIONS] [FILE | "
         "DIRECTORY]...",

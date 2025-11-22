@@ -30,7 +30,8 @@
 // between the tasks inside the scheduler.
 //
 
-class File {
+class File
+{
   public:
     File(const std::filesystem::path &aP,
          uint32_t aBlockSize);
@@ -38,12 +39,14 @@ class File {
 
     // GetPath is a simple accessor to get the file
     // path
-    auto GetPath(void) {
+    auto GetPath(void)
+    {
         return mPath;
     }
 
     // FileOk returns true if we should keep reading
-    bool FileOk(void) {
+    bool FileOk(void)
+    {
         return mOk;
     }
 
@@ -61,7 +64,8 @@ class File {
     void CleanupBytes(uint8_t *apBytes);
 
     // BytesRead returns the number of bytes read
-    uint32_t BytesRead(void) {
+    uint32_t BytesRead(void)
+    {
         return mBytesRead;
     }
 

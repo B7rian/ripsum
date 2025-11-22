@@ -24,20 +24,24 @@
 #include <openssl/evp.h>
 #include <string>
 
-class OpenSSLHash {
+class OpenSSLHash
+{
   public:
     void InitHash(void);
     void AddBytesToHash2(uint8_t *aBytes,
                          uint32_t aCount);
     void FinishHash(void);
-    const std::string &GetChecksum(void) {
+    const std::string &GetChecksum(void)
+    {
         return mChecksum;
     }
     void
-    SetExpectedChecksum(const std::string &aChecksum) {
+    SetExpectedChecksum(const std::string &aChecksum)
+    {
         mExpectedChecksum = aChecksum;
     }
-    bool ChecksumIsOk(void) {
+    bool ChecksumIsOk(void)
+    {
         // std::cerr << "E" << aChecksum << std::endl;
         // std::cerr << "A" << mChecksum << std::endl;
         return mChecksum == mExpectedChecksum;
@@ -45,7 +49,8 @@ class OpenSSLHash {
 
     // BytesHashed returns the total number of bytes
     // hashed
-    uint32_t BytesHashed(void) {
+    uint32_t BytesHashed(void)
+    {
         return mBytesHashed;
     }
 

@@ -22,7 +22,8 @@
 #include <filesystem>
 #include <functional>
 
-class FileSystem {
+class FileSystem
+{
   public:
     static void FindFiles(
         const std::filesystem::path aRootDir,

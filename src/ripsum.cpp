@@ -21,7 +21,8 @@
 #include "Executor.h"
 #include "UserInput.h"
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
     ConsoleOutput out;
     UserInput input(out);
     Executor ex;

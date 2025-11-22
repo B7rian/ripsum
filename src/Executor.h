@@ -29,7 +29,8 @@
 #include "TaskState.h"
 #include "UserInput.h"
 
-class Executor {
+class Executor
+{
   public:
     Executor(void);
 
@@ -49,20 +50,24 @@ class Executor {
         UserInput &aConfig,
         RipsumOutput *apOut);
 
-    void ActivityStarted(void) {
+    void ActivityStarted(void)
+    {
         mtRunning++;
     }
 
-    void AddTask(const Task &aT) {
+    void AddTask(const Task &aT)
+    {
         mAnyoneTasks.AddTask(aT);
     }
 
     void AddTask(const uint32_t aThreadNum,
-                 const Task &aT) {
+                 const Task &aT)
+    {
         mvThreadTasks[aThreadNum]->AddTask(aT);
     }
 
-    void ActivityDone(void) {
+    void ActivityDone(void)
+    {
         mtRunning--;
     }
 

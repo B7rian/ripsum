@@ -38,7 +38,8 @@
 // may allow more filenames than sha256sum does
 //
 
-ChecksumLine::ChecksumLine(std::string aLine) {
+ChecksumLine::ChecksumLine(std::string aLine)
+{
     std::regex r("\\s*([0-9a-f]{64}) [ *](.*\\S)\\s*");
     std::smatch captures;
 

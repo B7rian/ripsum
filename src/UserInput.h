@@ -40,9 +40,11 @@
 
 #include "RipsumOutput.h"
 
-class UserInput {
+class UserInput
+{
   public:
-    UserInput(RipsumOutput &out) : mOut(out) {
+    UserInput(RipsumOutput &out) : mOut(out)
+    {
     }
 
     // Reads checksums from the given file and calls

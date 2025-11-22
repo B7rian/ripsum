@@ -31,7 +31,8 @@
 void UserInput::ReadChecksumsFromFile(
     std::filesystem::path aP,
     std::function<void(std::filesystem::path,
-                       std::string)> aFileCb) {
+                       std::string)> aFileCb)
+{
     std::ifstream sin;
     std::string line;
 
@@ -50,8 +51,8 @@ void UserInput::ReadChecksumsFromFile(
 
 // This code is based on the example given in the
 // documentation for GNU getopt
-void UserInput::ParseCommandline(int argc,
-                                 char **argv) {
+void UserInput::ParseCommandline(int argc, char **argv)
+{
     int option_index = 0;
     int c;
 

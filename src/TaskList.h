@@ -29,7 +29,8 @@ using Task = std::function<void(uint32_t)>;
 
 // A TaskList is a collection of tasks that are ready
 // to be run
-class TaskList {
+class TaskList
+{
   public:
     // AddTask adds a task to the list
     void AddTask(const Task &aT);

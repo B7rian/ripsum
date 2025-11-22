@@ -28,11 +28,13 @@
 // ComputeChecksums
 //
 
-namespace compute {
+namespace compute
+{
 
 Task MakeChecksumFinishLambda(TaskState *apState,
                               Executor *apEx,
-                              RipsumOutput *apOut) {
+                              RipsumOutput *apOut)
+{
     return
         [apState, apEx, apOut](uint32_t aThreadNum) {
             apState->Finish();
@@ -46,7 +48,8 @@ Task MakeChecksumFinishLambda(TaskState *apState,
 
 Task MakeReadAndHashLambda(TaskState *apState,
                            Executor *apEx,
-                           RipsumOutput *apOut) {
+                           RipsumOutput *apOut)
+{
     return [apState, apEx, apOut](
                uint32_t aThreadNum) {
         apState->ReadBytes();
@@ -67,7 +70,8 @@ Task MakeComputeChecksumLambda(
     std::filesystem::path aP,
     uint32_t aBlockSize,
     Executor *apEx,
-    RipsumOutput *apOut) {
+    RipsumOutput *apOut)
+{
     return [aP, aBlockSize, apEx, apOut](
                uint32_t aThreadNum) {
         TaskState *pState =
@@ -81,11 +85,13 @@ Task MakeComputeChecksumLambda(
 
 } // namespace compute
 
-namespace check {
+namespace check
+{
 
 Task MakeChecksumFinishLambda(TaskState *apState,
                               Executor *apEx,
-                              RipsumOutput *apOut) {
+                              RipsumOutput *apOut)
+{
     return
         [apState, apEx, apOut](uint32_t aThreadNum) {
             apState->Finish();
@@ -105,7 +111,8 @@ Task MakeChecksumFinishLambda(TaskState *apState,
 
 Task MakeReadAndHashLambda(TaskState *apState,
                            Executor *apEx,
-                           RipsumOutput *apOut) {
+                           RipsumOutput *apOut)
+{
     return [apState, apEx, apOut](
                uint32_t aThreadNum) {
         apState->ReadBytes();
@@ -126,7 +133,8 @@ Task MakeCheckChecksumLambda(std::filesystem::path aP,
                              std::string aChecksum,
                              uint32_t aBlockSize,
                              Executor *apEx,
-                             RipsumOutput *apOut) {
+                             RipsumOutput *apOut)
+{
     return [aP, aChecksum, aBlockSize, apEx, apOut](
                uint32_t aThreadNum) {
         TaskState *pState =
@@ -144,7 +152,8 @@ Task MakeCheckChecksumLambda(std::filesystem::path aP,
 void Executor::ComputeChecksums(
     const std::filesystem::path &aPath,
     UserInput &aConfig,
-    RipsumOutput *apOut) {
+    RipsumOutput *apOut)
+{
     FileSystem::FindFiles(
         aPath, [&](std::filesystem::path aP) {
             ActivityStarted(); // Matching
@@ -158,7 +167,8 @@ void Executor::ComputeChecksums(
 void Executor::CheckChecksums(
     const std::filesystem::path &aChecksumFile,
     UserInput &aUserIn,
-    RipsumOutput *apOut) {
+    RipsumOutput *apOut)
+{
     aUserIn.ReadChecksumsFromFile(
         aChecksumFile,
         [&](std::filesystem::path aP,
@@ -179,7 +189,8 @@ void Executor::CheckChecksums(
 // main thread.  When the main thread calls Wait()
 // we'll decrement it to signal worker threads that we
 // don't have anything else to do
-Executor::Executor(void) : mtRunning{0} {
+Executor::Executor(void) : mtRunning{0}
+{
     ActivityStarted();
     // Create per-thread TaskLists 1st so vector can
     // reallocate internally without messing up running
@@ -197,7 +208,8 @@ Executor::Executor(void) : mtRunning{0} {
 // thread has called Wait() we assume it is also done
 // doing stuff and call ActivityDone() to signal the
 // worker threads that it's done.
-void Executor::Wait(void) {
+void Executor::Wait(void)
+{
     using namespace std::chrono_literals;
 
     ActivityDone();
@@ -218,7 +230,8 @@ void Executor::Wait(void) {
     }
 }
 
-void Executor::Worker(uint32_t aThreadNum) {
+void Executor::Worker(uint32_t aThreadNum)
+{
     Task newTask;
     bool haveTask;
 

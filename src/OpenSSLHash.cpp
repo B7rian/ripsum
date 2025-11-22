@@ -28,7 +28,8 @@
 
 static std::mutex sgEVPMutex;
 
-void OpenSSLHash::InitHash(void) {
+void OpenSSLHash::InitHash(void)
+{
     std::lock_guard<std::mutex> lock(sgEVPMutex);
     mCtx = EVP_MD_CTX_new();
     mMd = EVP_sha256();
@@ -37,13 +38,15 @@ void OpenSSLHash::InitHash(void) {
 }
 
 void OpenSSLHash::AddBytesToHash2(uint8_t *aBytes,
-                                  uint32_t aCount) {
+                                  uint32_t aCount)
+{
     std::lock_guard<std::mutex> lock(mDigestMutex);
     EVP_DigestUpdate(mCtx, aBytes, aCount);
     mBytesHashed += aCount;
 }
 
-void OpenSSLHash::FinishHash(void) {
+void OpenSSLHash::FinishHash(void)
+{
     {
         std::lock_guard<std::mutex> lock(mDigestMutex);
         EVP_DigestFinal_ex(
