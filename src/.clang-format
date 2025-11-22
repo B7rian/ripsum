@@ -1,0 +1,12 @@
+# .clang-format
+BasedOnStyle: LLVM
+ColumnLimit: 55
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+BinPackArguments: false      # crucial for 55 cols
+BinPackParameters: false     # crucial for 55 cols
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: false
+BreakBeforeBraces: Attach    # or change to Linux if you prefer { on new line
+SortIncludes: true

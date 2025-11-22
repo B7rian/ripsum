@@ -14,7 +14,8 @@
 # limitations under the License.
 #
 
-cmake_minimum_required(VERSION 3.12)	# 3.12 supports OpenSSL::SSL
+# 3.12 supports OpenSSL::SSL
+cmake_minimum_required(VERSION 3.12)
 project(ripsum)
 
 enable_testing()

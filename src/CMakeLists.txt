@@ -14,7 +14,8 @@
 # limitations under the License.
 #
 
-cmake_minimum_required(VERSION 3.12)	# 3.12 supports OpenSSL::SSL
+# 3.12 supports OpenSSL::SSL
+cmake_minimum_required(VERSION 3.12)
 project(ripsum)
 
 file(GLOB SRCS *.cpp *.h)
@@ -29,3 +30,19 @@ target_link_libraries(
 	OpenSSL::SSL
 	Threads::Threads
 	)
+
+#
+# Clang-format target
+#
+find_program(CLANG_FORMAT clang-format
+    DOC "Path to clang-format executable")
+
+add_custom_target(format
+    COMMAND ${CLANG_FORMAT}
+            -i
+            -style=file
+            ${SRCS}
+    COMMENT "Formatting code with clang-format (LLVM style, 55 cols)"
+    VERBATIM
+    )
+
